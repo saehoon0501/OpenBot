@@ -1,6 +1,7 @@
 package org.openbot.main;
 
 import static android.content.ContentValues.TAG;
+import static android.util.Log.ERROR;
 import static android.widget.Toast.makeText;
 
 import android.Manifest;
@@ -11,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,6 +70,7 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
   private CategoryAdapter adapter;
 
   private SetupTask voiceThread;
+  private TextToSpeech textToSpeech;
 
   @Nullable
   @Override
@@ -76,6 +79,17 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
       @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
     binding = FragmentMainBinding.inflate(inflater, container, false);
+
+    textToSpeech = new TextToSpeech(getContext(), new TextToSpeech.OnInitListener() {
+      @Override
+      public void onInit(int status) {
+        if(status != ERROR) {
+          // 언어를 선택한다.
+          textToSpeech.setLanguage(Locale.KOREAN);
+        }
+      }
+    });
+
     return binding.getRoot();
   }
 
@@ -513,77 +527,18 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
         binding.list.setAdapter(adapter);
       }
       else if (str.contains("날씨") || str.contains("날씨 어때") || str.contains("날 씨")) {
-//        try {
-//          SimpleDateFormat dtf = new SimpleDateFormat("yyyyMMdd");
-//          Calendar calendar1 = Calendar.getInstance();
-//
-//          Date dateObj = calendar1.getTime();
-//          String formattedDate = dtf.format(dateObj);
-//
-//          String endPoint = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/";
-//          String serviceKey = "2an6dDORxvF659L4yfzziSH5WbJgYc8OCVYhtL3C7GwVJ3xxTf9GxCstopQHCIkSbfdUAnK4oJDce4ZH1DJPXQ%3D%3D";
-//          String pageNo = "1";
-//          String numOfRows = "10";
-//          String baseDate = formattedDate;    //원하는 날짜
-//          String baseTime = "1100"; //원하는 시간
-//          String nx = "98"; //위경도임
-//          String ny = "77"; //위경도 정보는 api문서 볼 것
-//
-//          String s = endPoint + "getVilageFcst?serviceKey=" + serviceKey
-//                  + "&pageNo=" + pageNo
-//                  + "&numOfRows=" + numOfRows
-//                  + "&dataType=JSON"
-//                  + "&base_date=" + baseDate
-//                  + "&base_time=" + baseTime
-//                  + "&nx=" + nx
-//                  + "&ny=" + ny;
-//
-//          URL url = new URL(s);
-//          URLConnection conn = url.openConnection();
-//          conn.setConnectTimeout(8000);
-//          //conn.setRequestMethod("GET");
-//
-//          BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-////                    if (conn.getResponseCode() == 200) {
-////                        bufferedReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-////                    } else {
-////                        InputStream is = conn.getErrorStream();
-////                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-////                        byte[] byteBuffer = new byte[1024];
-////                        byte[] byteData = null;
-////                        int nLength = 0;
-////                        while ((nLength = is.read(byteBuffer, 0, byteBuffer.length)) != -1) {
-////                            baos.write(byteBuffer, 0, nLength);
-////                        }
-////                        byteData = baos.toByteArray();
-////                        String response1 = new String(byteData);
-////                        Log.d(TAG, "response = " + response1);
-////                    }
-//          StringBuilder stringBuilder = new StringBuilder();
-//          String line;
-//          while ((line = bufferedReader.readLine()) != null) {
-//            stringBuilder.append(line);
-//          }
-//          bufferedReader.close();
-//          String result = stringBuilder.toString();
-//
-//          Toast.makeText(getContext(), result, Toast.LENGTH_SHORT).show();
-//          //conn.();
-//
-////          JSONObject mainObject = new JSONObject(result);
-////          JSONArray itemArray = mainObject.getJSONObject("response").getJSONObject("body").getJSONObject("items").getJSONArray("item");
-////          for (int i = 0; i < itemArray.length(); i++) {
-////            JSONObject item = itemArray.getJSONObject(i);
-////            String category = item.getString("category");
-////            String value = item.getString("fcstValue");
-////            System.out.println(category + "  " + value);
-////            Log.d(TAG, category + "  " + value);
-////          }
-//        } catch (IOException e) {
-//          e.printStackTrace();
-//        } catch (Exception e) {
-//          e.printStackTrace();
-//        }
+
+        try {
+          Thread weatherGetting = new WeatherGetter();
+          weatherGetting.start();
+          weatherGetting.join();
+
+          String weatherInfo = WeatherGetter.getWeatherInfo();
+          Toast.makeText(getContext(), weatherInfo, Toast.LENGTH_SHORT).show();
+          textToSpeech.speak(weatherInfo , TextToSpeech.QUEUE_FLUSH, null);
+        } catch (InterruptedException ex) {
+          ex.printStackTrace();
+        }
 
       }
     }
