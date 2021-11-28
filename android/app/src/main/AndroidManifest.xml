@@ -48,6 +48,14 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
 
+        <receiver android:name=".voice.TimeAlarmReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".original.PlayActivity"
             android:exported="false" />
@@ -68,6 +76,7 @@
             <meta-data
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
+
         </activity>
         <activity
             android:name=".original.DefaultActivity"

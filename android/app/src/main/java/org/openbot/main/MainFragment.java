@@ -1,5 +1,6 @@
 package org.openbot.main;
 
+import static android.content.ContentValues.TAG;
 import static android.widget.Toast.makeText;
 
 import android.Manifest;
@@ -26,6 +27,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.openbot.R;
 import org.openbot.common.FeatureList;
 import org.openbot.databinding.FragmentMainBinding;
@@ -36,12 +41,17 @@ import org.openbot.original.PlayActivity;
 import org.openbot.voice.TimeAlarmManager;
 import org.openbot.voice.WeatherGetter;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 import edu.cmu.pocketsphinx.Assets;
@@ -442,6 +452,9 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
   private void doCommand(String command) {
     if(command != null) {
       String str = command;
+
+      Toast.makeText(getContext(), str, Toast.LENGTH_SHORT).show();
+
       SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.KOREA);
       Calendar calendar = Calendar.getInstance();
 
@@ -465,7 +478,8 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
           Toast.makeText(getContext(), "몇 시간 후인지 정확히 인식되지 않았습니다.", Toast.LENGTH_SHORT).show();
         }
 
-      } else if (str.contains("분 뒤 알림") || str.contains("분 뒤에 알림")) { // 분 알림
+      }
+      else if (str.contains("분 뒤 알림") || str.contains("분 뒤에 알림")) { // 분 알림
         alarmByMin = str.charAt(0) - '0';
 
         calendar.add(Calendar.MINUTE, alarmByMin);
@@ -485,6 +499,92 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
             Toast.makeText(getContext(), "몇 분 후인지 정확히 인식되지 않았습니다.", Toast.LENGTH_SHORT).show();
           }
         }
+      }
+      else if (str.contains("기분 좋아") || str.contains("행복")) {         //사용자의 기분에 맞춰서 voice 이미지 변경
+
+        binding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
+        adapter = new CategoryAdapter(FeatureList.changeVoiceCategoryImage("smile"), this);
+        binding.list.setAdapter(adapter);
+      }
+      else if (str.contains("피곤") || str.contains("슬퍼")) {
+
+        binding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
+        adapter = new CategoryAdapter(FeatureList.changeVoiceCategoryImage("sad"), this);
+        binding.list.setAdapter(adapter);
+      }
+      else if (str.contains("날씨") || str.contains("날씨 어때") || str.contains("날 씨")) {
+//        try {
+//          SimpleDateFormat dtf = new SimpleDateFormat("yyyyMMdd");
+//          Calendar calendar1 = Calendar.getInstance();
+//
+//          Date dateObj = calendar1.getTime();
+//          String formattedDate = dtf.format(dateObj);
+//
+//          String endPoint = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/";
+//          String serviceKey = "2an6dDORxvF659L4yfzziSH5WbJgYc8OCVYhtL3C7GwVJ3xxTf9GxCstopQHCIkSbfdUAnK4oJDce4ZH1DJPXQ%3D%3D";
+//          String pageNo = "1";
+//          String numOfRows = "10";
+//          String baseDate = formattedDate;    //원하는 날짜
+//          String baseTime = "1100"; //원하는 시간
+//          String nx = "98"; //위경도임
+//          String ny = "77"; //위경도 정보는 api문서 볼 것
+//
+//          String s = endPoint + "getVilageFcst?serviceKey=" + serviceKey
+//                  + "&pageNo=" + pageNo
+//                  + "&numOfRows=" + numOfRows
+//                  + "&dataType=JSON"
+//                  + "&base_date=" + baseDate
+//                  + "&base_time=" + baseTime
+//                  + "&nx=" + nx
+//                  + "&ny=" + ny;
+//
+//          URL url = new URL(s);
+//          URLConnection conn = url.openConnection();
+//          conn.setConnectTimeout(8000);
+//          //conn.setRequestMethod("GET");
+//
+//          BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+////                    if (conn.getResponseCode() == 200) {
+////                        bufferedReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+////                    } else {
+////                        InputStream is = conn.getErrorStream();
+////                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+////                        byte[] byteBuffer = new byte[1024];
+////                        byte[] byteData = null;
+////                        int nLength = 0;
+////                        while ((nLength = is.read(byteBuffer, 0, byteBuffer.length)) != -1) {
+////                            baos.write(byteBuffer, 0, nLength);
+////                        }
+////                        byteData = baos.toByteArray();
+////                        String response1 = new String(byteData);
+////                        Log.d(TAG, "response = " + response1);
+////                    }
+//          StringBuilder stringBuilder = new StringBuilder();
+//          String line;
+//          while ((line = bufferedReader.readLine()) != null) {
+//            stringBuilder.append(line);
+//          }
+//          bufferedReader.close();
+//          String result = stringBuilder.toString();
+//
+//          Toast.makeText(getContext(), result, Toast.LENGTH_SHORT).show();
+//          //conn.();
+//
+////          JSONObject mainObject = new JSONObject(result);
+////          JSONArray itemArray = mainObject.getJSONObject("response").getJSONObject("body").getJSONObject("items").getJSONArray("item");
+////          for (int i = 0; i < itemArray.length(); i++) {
+////            JSONObject item = itemArray.getJSONObject(i);
+////            String category = item.getString("category");
+////            String value = item.getString("fcstValue");
+////            System.out.println(category + "  " + value);
+////            Log.d(TAG, category + "  " + value);
+////          }
+//        } catch (IOException e) {
+//          e.printStackTrace();
+//        } catch (Exception e) {
+//          e.printStackTrace();
+//        }
+
       }
     }
     else {
