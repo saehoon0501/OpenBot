@@ -75,7 +75,7 @@ public class FeatureList {
     subCategories = new ArrayList<>();
     subCategories.add(new SubCategory(DEFAULT, R.drawable.openbot_icon, "#4B7BFF"));
     subCategories.add(new SubCategory(PLAY, R.drawable.openbot_icon, "#4B7BFF"));
-    subCategories.add(new SubCategory(VOICE, R.drawable.ic_voice_over, "#4B7BFF"));
+    subCategories.add(new SubCategory(VOICE, R.drawable.ic_voice_over, "#FF4000")); // green #01DF3A
     categories.add(new Category(LEGACY, subCategories));
 
     subCategories = new ArrayList<>();
@@ -136,6 +136,65 @@ public class FeatureList {
         subCategories.add(new SubCategory(MAP_VIEW, R.drawable.ic_map));
         categories.add(new Category(MONITORING, subCategories));
     */
+
+    return categories;
+  }
+
+  @NotNull
+  public static ArrayList<Category> changeVoiceCategoryImage(String str) {
+    ArrayList<Category> categories = new ArrayList<>();
+
+    ArrayList<SubCategory> subCategories;
+
+    subCategories = new ArrayList<>();
+    subCategories.add(new SubCategory(DEFAULT, R.drawable.openbot_icon, "#4B7BFF"));
+    subCategories.add(new SubCategory(PLAY, R.drawable.openbot_icon, "#4B7BFF"));
+
+    if (str == "smile")
+      subCategories.add(new SubCategory(VOICE, R.drawable.ic_baseline_sentiment_very_satisfied_24, "#00AAFF")); // green #01DF3A
+    else if (str == "sad")
+      subCategories.add(new SubCategory(VOICE, R.drawable.ic_baseline_sentiment_very_dissatisfied_24, "#0000FF")); // green #01DF3A
+
+    categories.add(new Category(LEGACY, subCategories));
+
+    subCategories = new ArrayList<>();
+    subCategories.add(new SubCategory(FREE_ROAM, R.drawable.ic_game, "#FFFF6D00"));
+    subCategories.add(new SubCategory(DATA_COLLECTION, R.drawable.ic_storage, "#93C47D"));
+    subCategories.add(new SubCategory(CONTROLLER_MAPPING, R.drawable.ic_joystick, "#7268A6"));
+    categories.add(new Category(GENERAL, subCategories));
+
+    subCategories = new ArrayList<>();
+    subCategories.add(new SubCategory(AUTOPILOT, R.drawable.ic_autopilot, "#4B7BFF"));
+    subCategories.add(new SubCategory(OBJECT_NAV, R.drawable.ic_person_search, "#FFD966"));
+    subCategories.add(new SubCategory(MODEL_MANAGEMENT, R.drawable.ic_edit_48, "#FFAC6C"));
+    categories.add(new Category(AI, subCategories));
+
+    return categories;
+  }
+
+  @NotNull
+  public static ArrayList<Category> changeVoiceCategoryToSadFaceImage() {
+    ArrayList<Category> categories = new ArrayList<>();
+
+    ArrayList<SubCategory> subCategories;
+
+    subCategories = new ArrayList<>();
+    subCategories.add(new SubCategory(DEFAULT, R.drawable.openbot_icon, "#4B7BFF"));
+    subCategories.add(new SubCategory(PLAY, R.drawable.openbot_icon, "#4B7BFF"));
+    subCategories.add(new SubCategory(VOICE, R.drawable.ic_baseline_sentiment_very_dissatisfied_24, "#FF4000")); // green #01DF3A
+    categories.add(new Category(LEGACY, subCategories));
+
+    subCategories = new ArrayList<>();
+    subCategories.add(new SubCategory(FREE_ROAM, R.drawable.ic_game, "#FFFF6D00"));
+    subCategories.add(new SubCategory(DATA_COLLECTION, R.drawable.ic_storage, "#93C47D"));
+    subCategories.add(new SubCategory(CONTROLLER_MAPPING, R.drawable.ic_joystick, "#7268A6"));
+    categories.add(new Category(GENERAL, subCategories));
+
+    subCategories = new ArrayList<>();
+    subCategories.add(new SubCategory(AUTOPILOT, R.drawable.ic_autopilot, "#4B7BFF"));
+    subCategories.add(new SubCategory(OBJECT_NAV, R.drawable.ic_person_search, "#FFD966"));
+    subCategories.add(new SubCategory(MODEL_MANAGEMENT, R.drawable.ic_edit_48, "#FFAC6C"));
+    categories.add(new Category(AI, subCategories));
 
     return categories;
   }
