@@ -47,7 +47,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-
+        <activity
+            android:name=".original.CameraActivity2"
+            android:exported="false" />
         <activity
             android:name=".original.PlayActivity"
             android:exported="false" />
@@ -112,5 +114,4 @@
                 android:resource="@xml/provider_paths" />
         </provider>
     </application>
-
 </manifest>
