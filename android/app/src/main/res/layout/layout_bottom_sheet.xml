@@ -10,8 +10,22 @@
     android:gravity="center_horizontal"
     android:orientation="vertical"
     android:padding="10dp"
+    android:scrollbarAlwaysDrawHorizontalTrack="false"
+    android:scrollbarAlwaysDrawVerticalTrack="true"
     app:behavior_hideable="true"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/imageView5"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            app:srcCompat="@drawable/smartobot" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/gesture_layout"
@@ -329,8 +343,8 @@
             android:layout_marginStart="10dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="2dp"
-            tools:entries="@array/models"
-            android:prompt="@string/model" />
+            android:prompt="@string/model"
+            tools:entries="@array/models" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/network_switch"
@@ -434,19 +448,20 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
+
         <TextView
             android:id="@+id/gx_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="2dp"
-            android:layout_marginLeft="10dp"
             android:text="gx : "
-            android:textSize="18sp"
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/gx"
@@ -459,13 +474,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
+            android:layout_marginLeft="10dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="2dp"
-            android:layout_marginLeft="10dp"
             android:gravity="center"
             android:text="gy : "
-            android:textSize="18sp"
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/gy"
@@ -475,11 +490,11 @@
 
         <Button
             android:id="@+id/SendBtn"
-            android:text="SEND"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
             android:enabled="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:text="SEND" />
     </LinearLayout>
 
 </LinearLayout>

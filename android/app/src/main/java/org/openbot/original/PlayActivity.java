@@ -384,7 +384,6 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
     Thread t2 = new Thread() {
 
-
         @Override
         public void run() {
             for (int i = 0; i<movingDegree.size();i++){

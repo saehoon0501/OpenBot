@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-show_animation = True
+show_animation = False
 
 
 class RRT:
@@ -281,8 +281,8 @@ def main(gx=20.0, gy=20.0):
 
 
 if __name__ == '__main__':
-    x = sys.argv[1];
-    y = sys.argv[2];
+    #x = sys.argv[1];
+    #y = sys.argv[2];
     main()
-    main(int(x),int(y))
+    #main(int(x),int(y))
     
