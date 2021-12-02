@@ -1,6 +1,7 @@
 package org.openbot.original;
 
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -154,19 +155,36 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 //        setContentView(R.layout.activity_play);
 //        request();
 
-        Button sendBtn = findViewById(R.id.SendBtn);
-        templ=  findViewById(R.id.temploc);
+        Intent intent = getIntent();
+        int temp = intent.getIntExtra("start request", 0);
+        if (temp != 0) {
+            Button sendBtn = findViewById(R.id.SendBtn);
+            templ=  findViewById(R.id.temploc);
+            getGyro();
 
-        sendBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                request();
-            }
-        });
-        getGyro();
+            request();
+            sendBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    request();
+                }
+            });
+        }
+        else{
+            Button sendBtn = findViewById(R.id.SendBtn);
+            templ=  findViewById(R.id.temploc);
+            getGyro();
+
+            sendBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    request();
+                }
+            });
+        }
     }
 
-    private void request() {
+    public void request() {
         EditText gx_num = findViewById(R.id.gx);
         EditText gy_num = findViewById(R.id.gy);
 
@@ -235,7 +253,6 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
         runInBackground(
                 () -> {
                     String title = "";
-
 
                     Document doc = null;
                     try {

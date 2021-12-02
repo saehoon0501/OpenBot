@@ -580,6 +580,9 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
 
       } else if (str.contains("자율 주행") || str.contains("자율주행")) {
 
+        Intent intent = new Intent(requireActivity(), PlayActivity.class);
+        intent.putExtra("start request", 1000);
+        startActivity(intent);
       }
     }
     else {
