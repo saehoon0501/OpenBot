@@ -25,12 +25,13 @@ public class WeatherGetter extends Thread {
     @Override
     public void run() {
         try {
-          SimpleDateFormat dtf = new SimpleDateFormat("MMdd");
+          SimpleDateFormat dtf = new SimpleDateFormat("yyyyMMdd");
           //SimpleDateFormat dtf1 = new SimpleDateFormat("HHmm");
           Calendar calendar1 = Calendar.getInstance();
 
           Date dateObj = calendar1.getTime();
           String currentDate = dtf.format(dateObj);
+          System.out.println(currentDate);
           //String currentTime = dtf1.format(dateObj);
 
           String endPoint = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/";
