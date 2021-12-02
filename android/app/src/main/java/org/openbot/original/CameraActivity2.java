@@ -55,6 +55,7 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -277,6 +278,7 @@ public abstract class CameraActivity2 extends AppCompatActivity
         controlAdapter.setDropDownViewResource(android.R.layout.simple_list_item_checked);
         speedModeSpinner.setAdapter(controlAdapter);
 
+
         ViewTreeObserver vto = gestureLayout.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -326,6 +328,7 @@ public abstract class CameraActivity2 extends AppCompatActivity
         cropValueTextView = findViewById(R.id.crop_info);
         inferenceTimeTextView = findViewById(R.id.inference_info);
         controlValueTextView = findViewById(R.id.control_info);
+
 
         connectionSwitchCompat.setOnCheckedChangeListener(this);
         networkSwitchCompat.setOnCheckedChangeListener(this);
