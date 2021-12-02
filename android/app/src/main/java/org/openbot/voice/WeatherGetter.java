@@ -41,7 +41,7 @@ public class WeatherGetter extends Thread {
           String baseDate = currentDate;    //현재 날짜
           String baseTime = "1100"; //원하는 시간
           String nx = "37";
-          String ny = "127";    //위치(위도, 경도)는 
+          String ny = "127";    //위치(위도, 경도)
 
           String s = endPoint + "getVilageFcst?serviceKey=" + serviceKey
                   + "&pageNo=" + pageNo
@@ -54,7 +54,7 @@ public class WeatherGetter extends Thread {
 
           URL url = new URL(s);
           URLConnection conn = url.openConnection();
-          conn.setConnectTimeout(8000);
+          //conn.setConnectTimeout(8000);
           //conn.setRequestMethod("GET");
 
           BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -81,6 +81,7 @@ public class WeatherGetter extends Thread {
           bufferedReader.close();
           String result = stringBuilder.toString();
           weatherInfo = result;
+          System.out.println(weatherInfo);
 
         } catch (IOException e) {
           e.printStackTrace();
@@ -89,7 +90,7 @@ public class WeatherGetter extends Thread {
         }
     }
     public static String getWeatherInfo() {
-        System.out.println(weatherInfo);
+        System.out.println("weatherInfo : " + weatherInfo);
 
         int currentTemperature = 0;
 

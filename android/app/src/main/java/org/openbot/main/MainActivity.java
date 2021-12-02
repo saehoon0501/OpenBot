@@ -1,5 +1,6 @@
 package org.openbot.main;
 
+import static android.util.Log.ERROR;
 import static org.openbot.utils.Constants.USB_ACTION_DATA_RECEIVED;
 
 import android.content.BroadcastReceiver;
@@ -9,6 +10,7 @@ import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -29,12 +31,37 @@ import org.openbot.R;
 import org.openbot.env.UsbConnection;
 import org.openbot.env.Vehicle;
 import org.openbot.utils.Constants;
+
+import java.util.Locale;
+
 import timber.log.Timber;
 
 // For a library module, uncomment the following line
 // import org.openbot.controller.ControllerActivity;
 
 public class MainActivity extends AppCompatActivity {
+
+//  public static TextToSpeech textToSpeech;
+//
+//  public void initTTS(){
+//    textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+//      @Override
+//      public void onInit(int status) {
+//        if(status != ERROR) {
+//          // 언어를 선택한다.
+//          textToSpeech.setLanguage(Locale.KOREAN);
+//        }
+//      }
+//    });
+//  }
+//
+//  public void destroyTTS() {
+//    if(textToSpeech != null) {
+//      textToSpeech.stop();
+//      textToSpeech.shutdown();
+//      textToSpeech = null;
+//    }
+//  }
 
   private MainViewModel viewModel;
   private BroadcastReceiver localBroadcastReceiver;
@@ -45,6 +72,10 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+
+    /// tts
+    //initTTS();
+    ///
 
     viewModel = new ViewModelProvider(this).get(MainViewModel.class);
     vehicle = OpenBotApplication.vehicle;
@@ -182,6 +213,9 @@ public class MainActivity extends AppCompatActivity {
 
   @Override
   public synchronized void onDestroy() {
+    ///tts
+    //destroyTTS();
+    ///
     if (localBroadcastManager != null) {
       localBroadcastManager.unregisterReceiver(localBroadcastReceiver);
       localBroadcastManager = null;

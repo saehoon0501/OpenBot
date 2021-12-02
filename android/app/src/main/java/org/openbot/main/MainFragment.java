@@ -75,9 +75,9 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
   @Nullable
   @Override
   public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
+          @NonNull LayoutInflater inflater,
+          @Nullable ViewGroup container,
+          @Nullable Bundle savedInstanceState) {
     binding = FragmentMainBinding.inflate(inflater, container, false);
 
     textToSpeech = new TextToSpeech(getContext(), new TextToSpeech.OnInitListener() {
@@ -116,12 +116,12 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
 
       case FeatureList.FREE_ROAM:
         Navigation.findNavController(requireView())
-            .navigate(R.id.action_mainFragment_to_robotCommunicationFragment);
+                .navigate(R.id.action_mainFragment_to_robotCommunicationFragment);
         break;
 
       case FeatureList.DATA_COLLECTION:
         Navigation.findNavController(requireView())
-            .navigate(R.id.action_mainFragment_to_loggerFragment);
+                .navigate(R.id.action_mainFragment_to_loggerFragment);
         break;
 
       case FeatureList.CONTROLLER:
@@ -131,22 +131,22 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
         break;
       case FeatureList.AUTOPILOT:
         Navigation.findNavController(requireView())
-            .navigate(R.id.action_mainFragment_to_autopilotFragment);
+                .navigate(R.id.action_mainFragment_to_autopilotFragment);
         break;
 
       case FeatureList.OBJECT_NAV:
         Navigation.findNavController(requireView())
-            .navigate(R.id.action_mainFragment_to_objectNavFragment);
+                .navigate(R.id.action_mainFragment_to_objectNavFragment);
         break;
 
       case FeatureList.CONTROLLER_MAPPING:
         Navigation.findNavController(requireView())
-            .navigate(R.id.action_mainFragment_to_controllerMappingFragment);
+                .navigate(R.id.action_mainFragment_to_controllerMappingFragment);
         break;
 
       case FeatureList.MODEL_MANAGEMENT:
         Navigation.findNavController(requireView())
-            .navigate(R.id.action_mainFragment_to_modelManagementFragment);
+                .navigate(R.id.action_mainFragment_to_modelManagementFragment);
         break;
 
       case FeatureList.PLAY:
@@ -176,25 +176,26 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
             });
           }
           voiceThread.execute();
-
         }
         else {
           categories.get(0).getSubCategories().get(2).setBackgroundColor("#FF4000");
           adapter = new CategoryAdapter(categories, this);
           binding.list.setAdapter(adapter);
 
-          if(textToSpeech != null) {
-            textToSpeech.stop();
-            textToSpeech.shutdown();
-            textToSpeech = null;
-          }
+//          synchronized (this) {
+//            if (textToSpeech != null) {
+//              textToSpeech.stop();
+//              textToSpeech.shutdown();
+//              textToSpeech = null;
+//            }
+//          }
 
 //          Toast.makeText(getContext(), "비활성화", Toast.LENGTH_SHORT).show();
           canVoiceRec = false;
           try {
-            //if(voiceThread != null && voiceThread.getStatus() == AsyncTask.Status.RUNNING) {
+            if(voiceThread != null && voiceThread.getStatus() == AsyncTask.Status.RUNNING) {
               voiceThread.cancel(true);
-            //}
+            }
           } catch (Exception ignored) {}
           recognizer.cancel();
           recognizer.shutdown();
@@ -284,7 +285,7 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
     if (searchName.equals(FAIL)) {
       recognizer.startListening(searchName);
     } else {
-      Toast.makeText(getContext(), "success", Toast.LENGTH_SHORT).show();
+      //Toast.makeText(getContext(), "success", Toast.LENGTH_SHORT).show();
 
       Handler handler = new Handler();
       handler.postDelayed(new Runnable() {
@@ -394,7 +395,9 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
       Log.i("voice", "start");
 //            ((TextView) findViewById(R.id.ListeningTextView)).setText("Listening...");
       Toast.makeText(getContext(), "음성인식을 시작합니다.", Toast.LENGTH_SHORT).show();
-      textToSpeech.speak("네 말씀하세요", TextToSpeech.QUEUE_FLUSH, null);
+      synchronized (this) {
+        textToSpeech.speak("네 말씀하세요", TextToSpeech.QUEUE_ADD, null);
+      }
     }
 
     @Override
@@ -513,7 +516,9 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일 HH시 mm분");
         simpleDateFormat.format(calendar.getTime());
+
         textToSpeech.speak(simpleDateFormat.format(calendar.getTime()) + "에 알림 예약되었습니다." , TextToSpeech.QUEUE_FLUSH, null);
+
         try {
           timeAlarmManager.reservationTimeByHour(calendar.getTime(), getContext());
         } catch (NullPointerException ex) {
@@ -542,7 +547,7 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
             Toast.makeText(getContext(), "context null error", Toast.LENGTH_SHORT).show();
           } else {
             Toast.makeText(getContext(), "몇 분 후인지 정확히 인식되지 않았습니다.", Toast.LENGTH_SHORT).show();
-       //     textToSpeech.speak("몇 분 후인지 정확히 인식되지 않았습니다.", TextToSpeech.QUEUE_FLUSH, null);
+            //     textToSpeech.speak("몇 분 후인지 정확히 인식되지 않았습니다.", TextToSpeech.QUEUE_FLUSH, null);
           }
         }
       }
