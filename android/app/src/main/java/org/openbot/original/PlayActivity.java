@@ -311,7 +311,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
             //직진 명령
             long t= System.currentTimeMillis();
-            long end = t+(new Double(Double.parseDouble(movingLength.get(i).toString())*1000*0.16)).longValue();
+            long end = t+(new Double(Double.parseDouble(movingLength.get(i).toString())*1000*0.4)).longValue();
             while(System.currentTimeMillis() < end) {
                 vehicle.sendControl(160, 240);
 
@@ -421,8 +421,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
                 yaw = yaw + gyroZ * dt;
 
                 if(roll<-360||roll>360){
-                    roll=0;
-                }
+                    roll=0;                }
 
                 degree = roll * RAD2DGR;
 
