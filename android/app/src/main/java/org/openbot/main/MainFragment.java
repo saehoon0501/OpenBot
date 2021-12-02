@@ -578,6 +578,8 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
           ex.printStackTrace();
         }
 
+      } else if (str.contains("자율 주행") || str.contains("자율주행")) {
+
       }
     }
     else {
