@@ -70,7 +70,7 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
   private CategoryAdapter adapter;
 
   private SetupTask voiceThread;
-  private TextToSpeech textToSpeech;
+  private TextToSpeech textToSpeech = null;
 
   @Nullable
   @Override
@@ -79,16 +79,6 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
       @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
     binding = FragmentMainBinding.inflate(inflater, container, false);
-
-    textToSpeech = new TextToSpeech(getContext(), new TextToSpeech.OnInitListener() {
-      @Override
-      public void onInit(int status) {
-        if(status != ERROR) {
-          // 언어를 선택한다.
-          textToSpeech.setLanguage(Locale.KOREAN);
-        }
-      }
-    });
 
     return binding.getRoot();
   }
@@ -163,18 +153,34 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
           binding.list.setAdapter(adapter);
 //          Toast.makeText(getContext(), "활성화", Toast.LENGTH_SHORT).show();
           voiceThread = new SetupTask(this);
+          textToSpeech = new TextToSpeech(getContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+              if(status != ERROR) {
+                // 언어를 선택한다.
+                textToSpeech.setLanguage(Locale.KOREAN);
+              }
+            }
+          });
           voiceThread.execute();
         }
         else {
           categories.get(0).getSubCategories().get(2).setBackgroundColor("#FF4000");
           adapter = new CategoryAdapter(categories, this);
           binding.list.setAdapter(adapter);
+
+          if(textToSpeech != null) {
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+            textToSpeech = null;
+          }
+
 //          Toast.makeText(getContext(), "비활성화", Toast.LENGTH_SHORT).show();
           canVoiceRec = false;
           try {
-            if(voiceThread != null && voiceThread.getStatus() == AsyncTask.Status.RUNNING) {
+            //if(voiceThread != null && voiceThread.getStatus() == AsyncTask.Status.RUNNING) {
               voiceThread.cancel(true);
-            }
+            //}
           } catch (Exception ignored) {}
           recognizer.cancel();
           recognizer.shutdown();
@@ -230,6 +236,7 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
 //      recognizer.cancel();
 //      recognizer.shutdown();
 //    }
+
   }
 
   @Override
@@ -371,6 +378,7 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
       Log.i("voice", "start");
 //            ((TextView) findViewById(R.id.ListeningTextView)).setText("Listening...");
       Toast.makeText(getContext(), "음성인식을 시작합니다.", Toast.LENGTH_SHORT).show();
+      textToSpeech.speak("네 말씀하세요", TextToSpeech.QUEUE_FLUSH, null);
     }
 
     @Override
@@ -399,6 +407,12 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
           recognizer.startListening(FAIL);
         }
       }, 1000);
+
+      if(textToSpeech != null) {
+        textToSpeech.stop();
+        textToSpeech.shutdown();
+        textToSpeech = null;
+      }
     }
 
     @Override
@@ -503,6 +517,9 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
         String reservationTime = dateFormat.format(calendar.getTime());
         Toast.makeText(getContext(), reservationTime + "에 알림 예약되었습니다", Toast.LENGTH_SHORT).show();
 
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일 HH시 mm분");
+
+        textToSpeech.speak(simpleDateFormat.format(calendar.getTime()) + "에 알림 예약되었습니다." , TextToSpeech.QUEUE_FLUSH, null);
         try {
           timeAlarmManager.reservationTimeByMin(calendar.getTime(), getContext());
           System.out.println(reservationTime + "에 알림 설정되었다");
@@ -511,6 +528,7 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
             Toast.makeText(getContext(), "context null error", Toast.LENGTH_SHORT).show();
           } else {
             Toast.makeText(getContext(), "몇 분 후인지 정확히 인식되지 않았습니다.", Toast.LENGTH_SHORT).show();
+            textToSpeech.speak("몇 분 후인지 정확히 인식되지 않았습니다.", TextToSpeech.QUEUE_FLUSH, null);
           }
         }
       }
@@ -519,12 +537,15 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
         binding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new CategoryAdapter(FeatureList.changeVoiceCategoryImage("smile"), this);
         binding.list.setAdapter(adapter);
+        textToSpeech.speak("저도 행복해요", TextToSpeech.QUEUE_FLUSH, null);
+
       }
       else if (str.contains("피곤") || str.contains("슬퍼")) {
 
         binding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new CategoryAdapter(FeatureList.changeVoiceCategoryImage("sad"), this);
         binding.list.setAdapter(adapter);
+        textToSpeech.speak("저도 우울해지네요", TextToSpeech.QUEUE_FLUSH, null);
       }
       else if (str.contains("날씨") || str.contains("날씨 어때") || str.contains("날 씨")) {
 
