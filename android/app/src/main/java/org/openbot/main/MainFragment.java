@@ -516,9 +516,7 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일 HH시 mm분");
         simpleDateFormat.format(calendar.getTime());
-
         textToSpeech.speak(simpleDateFormat.format(calendar.getTime()) + "에 알림 예약되었습니다." , TextToSpeech.QUEUE_FLUSH, null);
-
         try {
           timeAlarmManager.reservationTimeByHour(calendar.getTime(), getContext());
         } catch (NullPointerException ex) {
