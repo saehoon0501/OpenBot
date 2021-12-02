@@ -25,7 +25,7 @@ public class WeatherGetter extends Thread {
     @Override
     public void run() {
         try {
-          SimpleDateFormat dtf = new SimpleDateFormat("yyyyMMdd");
+          SimpleDateFormat dtf = new SimpleDateFormat("MMdd");
           //SimpleDateFormat dtf1 = new SimpleDateFormat("HHmm");
           Calendar calendar1 = Calendar.getInstance();
 
