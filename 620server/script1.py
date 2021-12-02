@@ -281,8 +281,8 @@ def main(gx=20.0, gy=20.0):
 
 
 if __name__ == '__main__':
-    #x = sys.argv[1];
-    #y = sys.argv[2];
-    main()
-    #main(int(x),int(y))
+    x = sys.argv[1];
+    y = sys.argv[2];
+    #main()
+    main(int(x),int(y))
     

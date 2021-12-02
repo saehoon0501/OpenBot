@@ -262,7 +262,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
 
 
-        runInBackground(t2);
+        runOnUiThread(t2);
 
     }
 
@@ -515,8 +515,8 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
                             for (final Detector.Recognition result : results) {
                                 final RectF location = result.getLocation();
                                 if (location != null && result.getConfidence() >= minimumConfidence) {
-                                    if (t2.isAlive())
-                                        t2.interrupt();
+//                                    if (t2.isAlive())
+//                                        t2.interrupt();
                                     canvas1.drawRect(location, paint);
                                     cropToFrameTransform.mapRect(location);
                                     result.setLocation(location);
