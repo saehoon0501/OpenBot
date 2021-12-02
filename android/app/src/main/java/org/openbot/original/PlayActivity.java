@@ -175,7 +175,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
 
         String str = gx_num.getText().toString() + "/" + gy_num.getText().toString();
-        String url = "https://mysterious-sea-88696.herokuapp.com/" + str;
+        String url = "https://mysterious-sea-88696.herokuapp.com/20/20";
 
         Toast.makeText(getApplicationContext(), "경로 탐색 시", Toast.LENGTH_SHORT).show();
 
