@@ -29,6 +29,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+
+import org.openbot.OpenBotApplication;
 import org.openbot.R;
 import org.openbot.customview.OverlayView;
 import org.openbot.customview.OverlayView.DrawCallback;
@@ -109,7 +111,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
     ArrayList y_list = new ArrayList();
     ArrayList angle = new ArrayList();
     ArrayList distance = new ArrayList();
-    private Vehicle vehicle;
+    private Vehicle vehicle = OpenBotApplication.vehicle;
 
 
     ArrayList<Double> movingLength = new ArrayList<Double>();
@@ -129,6 +131,9 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
     private SensorEventListener mGyroLis;
     private Sensor mGgyroSensor = null;
 
+
+    private double range;
+
     //Roll and Pitch
     private double pitch;
     private double roll;
@@ -137,6 +142,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
     //timestamp and dt
     private double timestamp;
     private double dt;
+    TextView templ;
 
     // for radian -> dgree
     private double RAD2DGR = 180 / Math.PI;
@@ -149,6 +155,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 //        request();
 
         Button sendBtn = findViewById(R.id.SendBtn);
+        templ=  findViewById(R.id.temploc);
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -156,113 +163,149 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
                 request();
             }
         });
-
+        getGyro();
     }
 
     private void request() {
         EditText gx_num = findViewById(R.id.gx);
         EditText gy_num = findViewById(R.id.gy);
 
-                x_list.clear();
-                y_list.clear();
+        x_list.clear();
+        y_list.clear();
 
 
-                String str = gx_num.getText().toString() + "/" + gy_num.getText().toString();
-                String url = "https://mysterious-sea-88696.herokuapp.com/" + str;
+        String str = gx_num.getText().toString() + "/" + gy_num.getText().toString();
+        String url = "https://mysterious-sea-88696.herokuapp.com/" + str;
 
-                Toast.makeText(getApplicationContext(), url, Toast.LENGTH_SHORT).show();
-
-
-                //Toast.makeText(getApplicationContext(), title, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "경로 탐색 시", Toast.LENGTH_SHORT).show();
 
 
-                Handler handler = new Handler() {
-                    @Override
-                    public void handleMessage(@NonNull Message msg) {
-                        Bundle bundle = msg.getData();
-                        String temp = bundle.getString("hi");
-                        temp.trim();
-                        temp = temp.replace(" ", "");
-                        temp = temp.replace("[", "");
-                        temp = temp.replace("]", "");
-
-                        String[] arr = temp.split(",");
-
-                        for (int i = 0; i < arr.length; i++) {
-                            if (i % 2 == 0) {
-                                x_list.add(arr[i]);
-                            } else {
-                                y_list.add(arr[i]);
-                            }
-                        }
+        //Toast.makeText(getApplicationContext(), title, Toast.LENGTH_SHORT).show();
 
 
-                        Collections.reverse(x_list);
-                        Collections.reverse(y_list);
+        Handler handler = new Handler() {
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                Bundle bundle = msg.getData();
+                String temp = bundle.getString("hi");
+                temp.trim();
+                temp = temp.replace(" ", "");
+                temp = temp.replace("[", "");
+                temp = temp.replace("]", "");
 
+                String[] arr = temp.split(",");
 
-                        System.out.println("사이즈는 " + x_list.size());
-                        System.out.println("사이즈는 " + y_list.size());
-
-
-                        System.out.println("x임다");
-
-                        for (int i = 0; i < x_list.size(); i++) {
-                            System.out.println(x_list.get(i));
-                        }
-
-                        System.out.println("y임다");
-
-                        for (int i = 0; i < y_list.size(); i++) {
-                            System.out.println(y_list.get(i));
-                        }
-
-
-
-                        Toast.makeText(getApplicationContext(), temp, Toast.LENGTH_SHORT).show();
-
+                for (int i = 0; i < arr.length; i++) {
+                    if (i % 2 == 0) {
+                        x_list.add(arr[i]);
+                    } else {
+                        y_list.add(arr[i]);
                     }
-                };
+                }
 
 
-                runInBackground(
-                    () -> {
-                        String title = "";
+                Collections.reverse(x_list);
+                Collections.reverse(y_list);
 
 
-                        Document doc = null;
-                        try {
-                            doc = Jsoup.connect(url).get();
-                            Elements mElementDatas = doc.select("body");
-                            title = mElementDatas.text();
+                System.out.println("사이즈는 " + x_list.size());
+                System.out.println("사이즈는 " + y_list.size());
+
+
+                System.out.println("x임다");
+
+                for (int i = 0; i < x_list.size(); i++) {
+                    System.out.println(x_list.get(i));
+                }
+
+                System.out.println("y임다");
+
+                for (int i = 0; i < y_list.size(); i++) {
+                    System.out.println(y_list.get(i));
+                }
+
+
+
+                Toast.makeText(getApplicationContext(), temp, Toast.LENGTH_SHORT).show();
+
+            }
+        };
+
+
+        runInBackground(
+                () -> {
+                    String title = "";
+
+
+                    Document doc = null;
+                    try {
+                        doc = Jsoup.connect(url).get();
+                        Elements mElementDatas = doc.select("body");
+                        title = mElementDatas.text();
 //                            for(Element elem : mElementDatas){
 //                                title = elem.select("body").text();
 //                            }
-                            bundle.putString("hi", title);
-                            Message msg = handler.obtainMessage();
-                            msg.setData(bundle);
-                            handler.sendMessage(msg);
-
-                        } catch (IOException e) {
+                        bundle.putString("hi", title);
+                        Message msg = handler.obtainMessage();
+                        msg.setData(bundle);
+                        handler.sendMessage(msg);
+                        try {
+                            Thread.sleep(2000);
+                            tracking();
+                        } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 });
-
-        tracking();
 
     }
 
-    private void tracking() {
+    private void  tracking() {
         angle();
         distance();
-        getGyro();
-
-        TextView trackText = findViewById(R.id.trackText);
-        TextView sensorText = findViewById(R.id.sensorText);
+//        getGyro;
+        //TextView goalt = findViewById(R.id.goalloc);
 
 
 
-        runOnUiThread(t2);
+        for (int i = 0; i<movingDegree.size();i++){
+
+            range = (Double.parseDouble(movingDegree.get(i).toString()));
+
+            //goalt.setText(Double.toString(range));
+
+            //아두이노에 회전 명령(왼쪽이면 양수, 오른쪽 회전이면 음수)
+            while(degree < range - 10 || degree > range + 10) {
+                if (range > degree) {
+                    vehicle.sendControl(-135, 0);
+                }
+                else
+                    vehicle.sendControl(0,-105);
+
+                try {
+                    System.out.println("멈춤");
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            //직진 명령
+            long t= System.currentTimeMillis();
+            long end = t+(new Double(Double.parseDouble(movingLength.get(i).toString())*1000*0.16)).longValue();
+            while(System.currentTimeMillis() < end) {
+                vehicle.sendControl(160, 240);
+
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            //거리 계산한것 만큼 아두이노로 start 신호 보냄.
+        }
 
     }
 
@@ -317,6 +360,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
     private int getGyro() {
 
+
         //Using the Gyroscope & Accelometer
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -325,6 +369,8 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
         mGyroLis = new GyroscopeListener();
         Button getBtn = findViewById(R.id.getBtn);
         mSensorManager.registerListener(mGyroLis, mGgyroSensor, SensorManager.SENSOR_DELAY_UI);
+
+
 
         return 1;
 
@@ -363,6 +409,8 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
                 degree = roll * RAD2DGR;
 
+
+
                 String dtos = String.valueOf(degree);
 
                 Log.e("LOG", "GYROSCOPE           [X]:" + String.format("%.4f", event.values[0])
@@ -374,6 +422,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
                         + "           [dt]: " + String.format("%.4f", dt));
 
             }
+            templ.setText(Double.toString(degree));
         }
 
         @Override
@@ -386,40 +435,41 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
         @Override
         public void run() {
-            for (int i = 0; i<movingDegree.size();i++){
-
-                double range = (Double.parseDouble(movingDegree.get(i).toString()));
-
-                //아두이노에 회전 명령(왼쪽이면 양수, 오른쪽 회전이면 음수)
-                while(degree < range - 10 || degree > range + 10) {
-                    if (range > degree) {
-                        vehicle.sendControl(-130, 0);
-                    }
-                    else
-                        vehicle.sendControl(0,-130);
-
-                    try {
-                        System.out.println("멈춤");
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                //직진 명령
-                long t= System.currentTimeMillis();
-                long end = t+(new Double(Double.parseDouble(movingLength.get(i).toString())*1000*0.16)).longValue();
-                while(System.currentTimeMillis() < end) {
-                    vehicle.sendControl(255, 255);
-
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                //거리 계산한것 만큼 아두이노로 start 신호 보냄.
-            }
+//            Toast.makeText(getApplicationContext(), "Tracking 끝!", Toast.LENGTH_SHORT).show();
+//            for (int i = 0; i<movingDegree.size();i++){
+//
+//                double range = (Double.parseDouble(movingDegree.get(i).toString()));
+//
+//                //아두이노에 회전 명령(왼쪽이면 양수, 오른쪽 회전이면 음수)
+//                while(degree < range - 10 || degree > range + 10) {
+//                    if (range > degree) {
+//                        vehicle.sendControl(-130, 0);
+//                    }
+//                    else
+//                        vehicle.sendControl(0,-200);
+//
+//                    try {
+//                        System.out.println("멈춤");
+//                        Thread.sleep(100);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//
+//                //직진 명령
+//                long t= System.currentTimeMillis();
+//                long end = t+(new Double(Double.parseDouble(movingLength.get(i).toString())*1000*0.16)).longValue();
+//                while(System.currentTimeMillis() < end) {
+//                    vehicle.sendControl(150, 255);
+//
+//                    try {
+//                        Thread.sleep(100);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//                //거리 계산한것 만큼 아두이노로 start 신호 보냄.
+//            }
         }
     };
 
