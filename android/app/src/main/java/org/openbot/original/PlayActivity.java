@@ -14,6 +14,10 @@ import android.graphics.Typeface;
 import android.hardware.Camera;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
+import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -154,6 +158,8 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
     Button securityBtn;
     Button normalBtn;
     Timer timer;
+    ImageReader reader;
+    int toggle;
 
     // for radian -> dgree
     private double RAD2DGR = 180 / Math.PI;
@@ -189,6 +195,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
             @Override
             public void onClick(View v) {
                 security();
+                toggle = 1;
             }
         });
 
@@ -196,6 +203,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
             @Override
             public void onClick(View v) {
                 normal();
+                toggle =0;
             }
         });
 
@@ -203,7 +211,12 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
     }
 
     private void security(){
-        final Handler handler = new Handler();
+        final Handler handler = new Handler(){
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                toggle = 1;
+            }
+        };
         timer = new Timer(false);
         TimerTask timerTask = new TimerTask() {
             @Override
@@ -211,12 +224,23 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        vehicle.sendControl(-130,0);
+                        int i = 0;
+                        Message msg = handler.obtainMessage();
+                        handler.sendMessage(msg);
+                        while(2 > i ){
+                            vehicle.sendControl(-130,0);
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            i++;
+                        }
                     }
                 });
             }
         };
-        timer.schedule(timerTask, 1000); // 1000 = 1 second.
+        timer.schedule(timerTask, 2000); // 1000 = 1 second.
     }
 
     private void normal(){
@@ -595,16 +619,21 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
                             final List<Detector.Recognition> mappedRecognitions =
                                     new LinkedList<Detector.Recognition>();
+                            MediaPlayer mediaPlayer = MediaPlayer.create(getContext(),R.raw.alarm);
 
                             for (final Detector.Recognition result : results) {
                                 final RectF location = result.getLocation();
                                 if (location != null && result.getConfidence() >= minimumConfidence) {
-                                    if (rrt!=null)
-                                        rrt.interrupt();
-                                    canvas1.drawRect(location, paint);
-                                    cropToFrameTransform.mapRect(location);
-                                    result.setLocation(location);
-                                    mappedRecognitions.add(result);
+                                    if (toggle == 1) {
+                                        mediaPlayer.start();
+                                        toggle = 0;
+                                    }else {
+                                        mediaPlayer.stop();
+                                        canvas1.drawRect(location, paint);
+                                        cropToFrameTransform.mapRect(location);
+                                        result.setLocation(location);
+                                        mappedRecognitions.add(result);
+                                    }
                                 }
                             }
 
