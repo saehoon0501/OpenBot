@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import org.openbot.OpenBotApplication;
@@ -143,48 +145,71 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
     //timestamp and dt
     private double timestamp;
     private double dt;
+
     TextView templ;
+    TextView goal;
 
     // for radian -> dgree
     private double RAD2DGR = 180 / Math.PI;
     private static final float NS2S = 1.0f / 1000000000.0f;
 
+    //RRT Thread
+    Thread rrt;
+
+    //음성인식 Intent 메세지
+    int voiceMessage;
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.activity_play);
-//        request();
+        Button sendBtn = findViewById(R.id.SendBtn);
+        templ=  findViewById(R.id.temploc);
+        goal = findViewById(R.id.goalloc);
+        goal.setText("RRT 대기 중");
+        getGyro();
+        sendBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                request();
+            }
+        });
 
         Intent intent = getIntent();
-        int temp = intent.getIntExtra("start request", 0);
-        if (temp != 0) {
-            Button sendBtn = findViewById(R.id.SendBtn);
-            templ=  findViewById(R.id.temploc);
-            getGyro();
+        voiceMessage = intent.getIntExtra("start request", 0);
+    }
 
+    @Override
+    public synchronized void onResume() {
+        super.onResume();
+        final Handler handler = new Handler();
+        Timer timer = new Timer(false);
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        request();
+                    }
+                });
+            }
+        };
+        if (rrt == null)
+            timer.schedule(timerTask, 10000); // 1000 = 1 second.
+        if (voiceMessage == 1000){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             request();
-            sendBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    request();
-                }
-            });
         }
-        else{
-            Button sendBtn = findViewById(R.id.SendBtn);
-            templ=  findViewById(R.id.temploc);
-            getGyro();
 
-            sendBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    request();
-                }
-            });
-        }
     }
 
     public void request() {
+        goal.setText("RRT 작동 중");
         EditText gx_num = findViewById(R.id.gx);
         EditText gy_num = findViewById(R.id.gy);
 
@@ -195,103 +220,104 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
         String str = gx_num.getText().toString() + "/" + gy_num.getText().toString();
         String url = "https://mysterious-sea-88696.herokuapp.com/20/20";
 
-        Toast.makeText(getApplicationContext(), "경로 탐색 시", Toast.LENGTH_SHORT).show();
-
-
-        //Toast.makeText(getApplicationContext(), title, Toast.LENGTH_SHORT).show();
-
-
         Handler handler = new Handler() {
             @Override
             public void handleMessage(@NonNull Message msg) {
                 Bundle bundle = msg.getData();
-                String temp = bundle.getString("hi");
-                temp.trim();
-                temp = temp.replace(" ", "");
-                temp = temp.replace("[", "");
-                temp = temp.replace("]", "");
+                if (bundle.containsKey("hi")) {
+                    String temp = bundle.getString("hi");
+                    temp.trim();
+                    temp = temp.replace(" ", "");
+                    temp = temp.replace("[", "");
+                    temp = temp.replace("]", "");
 
-                String[] arr = temp.split(",");
+                    String[] arr = temp.split(",");
 
-                for (int i = 0; i < arr.length; i++) {
-                    if (i % 2 == 0) {
-                        x_list.add(arr[i]);
-                    } else {
-                        y_list.add(arr[i]);
+                    for (int i = 0; i < arr.length; i++) {
+                        if (i % 2 == 0) {
+                            x_list.add(arr[i]);
+                        } else {
+                            y_list.add(arr[i]);
+                        }
                     }
+
+
+                    Collections.reverse(x_list);
+                    Collections.reverse(y_list);
+
+
+                    System.out.println("사이즈는 " + x_list.size());
+                    System.out.println("사이즈는 " + y_list.size());
+
+
+                    System.out.println("x임다");
+
+                    for (int i = 0; i < x_list.size(); i++) {
+                        System.out.println(x_list.get(i));
+                    }
+
+                    System.out.println("y임다");
+
+                    for (int i = 0; i < y_list.size(); i++) {
+                        System.out.println(y_list.get(i));
+                    }
+
+
+                    Toast.makeText(getApplicationContext(), temp, Toast.LENGTH_SHORT).show();
+                }else{
+                    goal.setText(bundle.getString("end"));
                 }
+            }
+        };
 
+         rrt = new Thread(){
+            @Override
+            public void run() {
+                String title = "";
 
-                Collections.reverse(x_list);
-                Collections.reverse(y_list);
-
-
-                System.out.println("사이즈는 " + x_list.size());
-                System.out.println("사이즈는 " + y_list.size());
-
-
-                System.out.println("x임다");
-
-                for (int i = 0; i < x_list.size(); i++) {
-                    System.out.println(x_list.get(i));
+                Document doc = null;
+                try {
+                    doc = Jsoup.connect(url).get();
+                    Elements mElementDatas = doc.select("body");
+                    title = mElementDatas.text();
+//                            for(Element elem : mElementDatas){
+//                                title = elem.select("body").text();
+//                            }
+                    bundle.putString("hi", title);
+                    Message msg = handler.obtainMessage();
+                    msg.setData(bundle);
+                    handler.sendMessage(msg);
+                    try {
+                        Thread.sleep(2000);
+                        tracking();
+                        bundle.clear();
+                        bundle.putString("end", "RRT 대기 중");
+                        Message msg2 = handler.obtainMessage();
+                        msg2.setData(bundle);
+                        handler.sendMessage(msg2);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-
-                System.out.println("y임다");
-
-                for (int i = 0; i < y_list.size(); i++) {
-                    System.out.println(y_list.get(i));
-                }
-
-
-
-                Toast.makeText(getApplicationContext(), temp, Toast.LENGTH_SHORT).show();
-
             }
         };
 
 
-        runInBackground(
-                () -> {
-                    String title = "";
-
-                    Document doc = null;
-                    try {
-                        doc = Jsoup.connect(url).get();
-                        Elements mElementDatas = doc.select("body");
-                        title = mElementDatas.text();
-//                            for(Element elem : mElementDatas){
-//                                title = elem.select("body").text();
-//                            }
-                        bundle.putString("hi", title);
-                        Message msg = handler.obtainMessage();
-                        msg.setData(bundle);
-                        handler.sendMessage(msg);
-                        try {
-                            Thread.sleep(2000);
-                            tracking();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
+        runInBackground(rrt);
 
     }
 
     private void  tracking() {
         angle();
         distance();
-//        getGyro;
-        //TextView goalt = findViewById(R.id.goalloc);
 
 
 
         for (int i = 0; i<movingDegree.size();i++){
 
             range = (Double.parseDouble(movingDegree.get(i).toString()));
-
-            //goalt.setText(Double.toString(range));
 
             //아두이노에 회전 명령(왼쪽이면 양수, 오른쪽 회전이면 음수)
             while(degree < range - 10 || degree > range + 10) {
@@ -321,7 +347,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
                     e.printStackTrace();
                 }
             }
-            //거리 계산한것 만큼 아두이노로 start 신호 보냄.
+           // 거리 계산한것 만큼 아두이노로 start 신호 보냄.
         }
 
     }
@@ -446,48 +472,6 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
         }
     }
-
-    Thread t2 = new Thread() {
-
-        @Override
-        public void run() {
-//            Toast.makeText(getApplicationContext(), "Tracking 끝!", Toast.LENGTH_SHORT).show();
-//            for (int i = 0; i<movingDegree.size();i++){
-//
-//                double range = (Double.parseDouble(movingDegree.get(i).toString()));
-//
-//                //아두이노에 회전 명령(왼쪽이면 양수, 오른쪽 회전이면 음수)
-//                while(degree < range - 10 || degree > range + 10) {
-//                    if (range > degree) {
-//                        vehicle.sendControl(-130, 0);
-//                    }
-//                    else
-//                        vehicle.sendControl(0,-200);
-//
-//                    try {
-//                        System.out.println("멈춤");
-//                        Thread.sleep(100);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//
-//                //직진 명령
-//                long t= System.currentTimeMillis();
-//                long end = t+(new Double(Double.parseDouble(movingLength.get(i).toString())*1000*0.16)).longValue();
-//                while(System.currentTimeMillis() < end) {
-//                    vehicle.sendControl(150, 255);
-//
-//                    try {
-//                        Thread.sleep(100);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//                //거리 계산한것 만큼 아두이노로 start 신호 보냄.
-//            }
-        }
-    };
 
     @Override
     protected void processImage() {
@@ -619,6 +603,13 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
                     if (networkEnabled)
                         inferenceTimeTextView.setText(String.format(Locale.US, "%d ms", lastProcessingTimeMs));
                 });
+    }
+
+    @Override
+    public synchronized void onPause() {
+        if (rrt.isAlive())
+                rrt.interrupt();
+        super.onPause();
     }
 
     @Override
