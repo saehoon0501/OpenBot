@@ -609,10 +609,19 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
     @Override
     public synchronized void onPause() {
-        if (rrt.isAlive())
-                rrt.interrupt();
+        if (rrt!=null){
+            rrt.interrupt();
+            Thread.currentThread().interrupt();
+        }
         super.onPause();
     }
+
+    @Override
+    public synchronized void onDestroy() {
+        super.onDestroy();
+    }
+
+
 
     @Override
     protected void onPreviewSizeChosen(final Size size,final int rotation) {
