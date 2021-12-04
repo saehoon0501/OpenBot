@@ -41,6 +41,7 @@ import org.openbot.env.BorderedText;
 import org.openbot.env.BotToControllerEventBus;
 import org.openbot.env.ImageUtils;
 import org.openbot.env.Logger;
+import org.openbot.main.MainFragment;
 import org.openbot.tflite.Autopilot;
 import org.openbot.tflite.Detector;
 import org.openbot.tflite.Model;
@@ -49,7 +50,6 @@ import org.openbot.tracking.MultiBoxTracker;
 import org.openbot.utils.ConnectionUtils;
 import org.openbot.utils.Enums.ControlMode;
 import org.openbot.utils.Enums.LogMode;
-
 
 
 import androidx.annotation.NonNull;
@@ -70,7 +70,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 
-
 import org.jsoup.select.Elements;
 import org.openbot.env.Vehicle;
 
@@ -81,7 +80,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 
-public class PlayActivity extends CameraActivity2 implements OnImageAvailableListener {
+public class PlayActivity extends CameraActivity2 implements OnImageAvailableListener, MainFragment.VoiceListener {
     private static final Logger LOGGER = new Logger();
 
     // Minimum detection confidence to track a detection.
@@ -163,10 +162,12 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.activity_play);
+
         Button sendBtn = findViewById(R.id.SendBtn);
         templ=  findViewById(R.id.temploc);
         goal = findViewById(R.id.goalloc);
         goal.setText("RRT 대기 중");
+
         getGyro();
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -175,13 +176,14 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
             }
         });
 
-        Intent intent = getIntent();
-        voiceMessage = intent.getIntExtra("start request", 0);
+        MainFragment.playActivity = this;
     }
 
     @Override
     public synchronized void onResume() {
         super.onResume();
+        Intent intent = getIntent();
+        voiceMessage = intent.getIntExtra("start request", 0);
         final Handler handler = new Handler();
         Timer timer = new Timer(false);
         TimerTask timerTask = new TimerTask() {
@@ -197,15 +199,13 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
         };
         if (rrt == null)
             timer.schedule(timerTask, 10000); // 1000 = 1 second.
-        if (voiceMessage == 1000){
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            request();
-        }
 
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        MainFragment.playActivity = null;
     }
 
     public void request() {
@@ -262,8 +262,8 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
                         System.out.println(y_list.get(i));
                     }
 
-
                     Toast.makeText(getApplicationContext(), temp, Toast.LENGTH_SHORT).show();
+
                 }else{
                     goal.setText(bundle.getString("end"));
                 }
@@ -309,23 +309,21 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
     }
 
-    private void  tracking() {
+    private void tracking() {
         angle();
         distance();
 
 
-
-        for (int i = 0; i<movingDegree.size();i++){
+        for (int i = 0; i < movingDegree.size(); i++) {
 
             range = (Double.parseDouble(movingDegree.get(i).toString()));
 
             //아두이노에 회전 명령(왼쪽이면 양수, 오른쪽 회전이면 음수)
-            while(degree < range - 10 || degree > range + 10) {
+            while (degree < range - 10 || degree > range + 10) {
                 if (range > degree) {
                     vehicle.sendControl(-135, 0);
-                }
-                else
-                    vehicle.sendControl(0,-105);
+                } else
+                    vehicle.sendControl(0, -105);
 
                 try {
                     System.out.println("멈춤");
@@ -336,9 +334,9 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
             }
 
             //직진 명령
-            long t= System.currentTimeMillis();
-            long end = t+(new Double(Double.parseDouble(movingLength.get(i).toString())*1000*0.4)).longValue();
-            while(System.currentTimeMillis() < end) {
+            long t = System.currentTimeMillis();
+            long end = t + (new Double(Double.parseDouble(movingLength.get(i).toString()) * 1000 * 0.4)).longValue();
+            while (System.currentTimeMillis() < end) {
                 vehicle.sendControl(160, 240);
 
                 try {
@@ -403,7 +401,6 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
     private int getGyro() {
 
-
         //Using the Gyroscope & Accelometer
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -414,9 +411,14 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
         mSensorManager.registerListener(mGyroLis, mGgyroSensor, SensorManager.SENSOR_DELAY_UI);
 
 
-
         return 1;
 
+    }
+
+    // 음성 인식 interface implements
+    @Override
+    public void onReceivedEvent() {
+        request();
     }
 
 
@@ -446,11 +448,11 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
                 roll = roll + gyroX * dt;
                 yaw = yaw + gyroZ * dt;
 
-                if(roll<-360||roll>360){
-                    roll=0;                }
+                if (roll < -360 || roll > 360) {
+                    roll = 0;
+                }
 
                 degree = roll * RAD2DGR;
-
 
 
                 String dtos = String.valueOf(degree);

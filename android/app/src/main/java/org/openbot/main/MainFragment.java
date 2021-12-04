@@ -5,6 +5,9 @@ import static android.util.Log.ERROR;
 import static android.widget.Toast.makeText;
 
 import android.Manifest;
+import android.app.ActivityManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -54,7 +57,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import edu.cmu.pocketsphinx.Assets;
 import edu.cmu.pocketsphinx.Hypothesis;
@@ -64,6 +69,19 @@ import edu.cmu.pocketsphinx.SpeechRecognizerSetup;
 import timber.log.Timber;
 
 public class MainFragment extends Fragment implements OnItemClickListener<SubCategory>, RecognitionListener {
+
+  public static PlayActivity playActivity;
+
+  // voice recognizer listener
+  public interface VoiceListener {
+    void onReceivedEvent();
+  }
+
+  private VoiceListener voiceListener;
+
+//  public void setVoiceListener(VoiceListener listener) {
+//    voiceListener = listener;
+//  }
 
   private MainViewModel mViewModel;
   private FragmentMainBinding binding;
@@ -580,9 +598,29 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
 
       } else if (str.contains("자율 주행") || str.contains("자율주행")) {
 
-        Intent intent = new Intent(requireActivity(), PlayActivity.class);
-        intent.putExtra("start request", 1000);
-        startActivity(intent);
+//        ActivityManager manager = (ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE);
+//        List<ActivityManager.RunningTaskInfo> info = manager.getRunningTasks(1);
+//        ComponentName componentName = info.get(0).topActivity;
+//        String topActivityName = componentName.getShortClassName().substring(1);
+
+        if(playActivity != null) {
+          voiceListener = (VoiceListener) playActivity;
+          voiceListener.onReceivedEvent();
+        } else {
+          Intent intent = new Intent(requireActivity(), PlayActivity.class);
+          intent.putExtra("start request", 1000);
+          startActivity(intent);
+        }
+
+//        if(topActivityName.equals("original.PlayActivity")) {
+//          voiceListener = (VoiceListener) playActivity;
+//          voiceListener.onReceivedEvent();
+//        } else {
+//          Intent intent = new Intent(requireActivity(), PlayActivity.class);
+//          intent.putExtra("start request", 1000);
+//          startActivity(intent);
+//        }
+
       }
     }
     else {
