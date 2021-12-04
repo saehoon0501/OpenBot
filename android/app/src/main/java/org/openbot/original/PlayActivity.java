@@ -39,6 +39,7 @@ import org.openbot.env.BorderedText;
 import org.openbot.env.BotToControllerEventBus;
 import org.openbot.env.ImageUtils;
 import org.openbot.env.Logger;
+import org.openbot.main.MainFragment;
 import org.openbot.tflite.Autopilot;
 import org.openbot.tflite.Detector;
 import org.openbot.tflite.Model;
@@ -47,7 +48,6 @@ import org.openbot.tracking.MultiBoxTracker;
 import org.openbot.utils.ConnectionUtils;
 import org.openbot.utils.Enums.ControlMode;
 import org.openbot.utils.Enums.LogMode;
-
 
 
 import androidx.annotation.NonNull;
@@ -68,7 +68,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 
-
 import org.jsoup.select.Elements;
 import org.openbot.env.Vehicle;
 
@@ -79,7 +78,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 
-public class PlayActivity extends CameraActivity2 implements OnImageAvailableListener {
+public class PlayActivity extends CameraActivity2 implements OnImageAvailableListener, MainFragment.VoiceListener {
     private static final Logger LOGGER = new Logger();
 
     // Minimum detection confidence to track a detection.
@@ -154,34 +153,33 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.activity_play);
 //        request();
+        Button sendBtn = findViewById(R.id.SendBtn);
+        templ = findViewById(R.id.temploc);
+        getGyro();
+        sendBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                request();
+            }
+        });
 
+        MainFragment.playActivity = this;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         Intent intent = getIntent();
         int temp = intent.getIntExtra("start request", 0);
-        if (temp != 0) {
-            Button sendBtn = findViewById(R.id.SendBtn);
-            templ=  findViewById(R.id.temploc);
-            getGyro();
-
+        if(temp == 1000) {
             request();
-            sendBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    request();
-                }
-            });
         }
-        else{
-            Button sendBtn = findViewById(R.id.SendBtn);
-            templ=  findViewById(R.id.temploc);
-            getGyro();
+    }
 
-            sendBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    request();
-                }
-            });
-        }
+    @Override
+    public void onStop() {
+        super.onStop();
+        MainFragment.playActivity = null;
     }
 
     public void request() {
@@ -243,7 +241,6 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
                 }
 
 
-
                 Toast.makeText(getApplicationContext(), temp, Toast.LENGTH_SHORT).show();
 
             }
@@ -279,27 +276,25 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
     }
 
-    private void  tracking() {
+    private void tracking() {
         angle();
         distance();
 //        getGyro;
         //TextView goalt = findViewById(R.id.goalloc);
 
 
-
-        for (int i = 0; i<movingDegree.size();i++){
+        for (int i = 0; i < movingDegree.size(); i++) {
 
             range = (Double.parseDouble(movingDegree.get(i).toString()));
 
             //goalt.setText(Double.toString(range));
 
             //아두이노에 회전 명령(왼쪽이면 양수, 오른쪽 회전이면 음수)
-            while(degree < range - 10 || degree > range + 10) {
+            while (degree < range - 10 || degree > range + 10) {
                 if (range > degree) {
                     vehicle.sendControl(-135, 0);
-                }
-                else
-                    vehicle.sendControl(0,-105);
+                } else
+                    vehicle.sendControl(0, -105);
 
                 try {
                     System.out.println("멈춤");
@@ -310,9 +305,9 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
             }
 
             //직진 명령
-            long t= System.currentTimeMillis();
-            long end = t+(new Double(Double.parseDouble(movingLength.get(i).toString())*1000*0.4)).longValue();
-            while(System.currentTimeMillis() < end) {
+            long t = System.currentTimeMillis();
+            long end = t + (new Double(Double.parseDouble(movingLength.get(i).toString()) * 1000 * 0.4)).longValue();
+            while (System.currentTimeMillis() < end) {
                 vehicle.sendControl(160, 240);
 
                 try {
@@ -377,7 +372,6 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
     private int getGyro() {
 
-
         //Using the Gyroscope & Accelometer
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -388,9 +382,14 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
         mSensorManager.registerListener(mGyroLis, mGgyroSensor, SensorManager.SENSOR_DELAY_UI);
 
 
-
         return 1;
 
+    }
+
+    // 음성 인식 interface implements
+    @Override
+    public void onReceivedEvent() {
+        request();
     }
 
 
@@ -420,11 +419,11 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
                 roll = roll + gyroX * dt;
                 yaw = yaw + gyroZ * dt;
 
-                if(roll<-360||roll>360){
-                    roll=0;                }
+                if (roll < -360 || roll > 360) {
+                    roll = 0;
+                }
 
                 degree = roll * RAD2DGR;
-
 
 
                 String dtos = String.valueOf(degree);
@@ -622,7 +621,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
     }
 
     @Override
-    protected void onPreviewSizeChosen(final Size size,final int rotation) {
+    protected void onPreviewSizeChosen(final Size size, final int rotation) {
         final float textSizePx =
                 TypedValue.applyDimension(
                         TypedValue.COMPLEX_UNIT_DIP, TEXT_SIZE_DIP, getResources().getDisplayMetrics());
