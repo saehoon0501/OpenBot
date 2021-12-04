@@ -453,49 +453,35 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/gx_text"
+        <Button
+            android:id="@+id/normal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="2dp"
-            android:text="gx : "
-            android:textColor="@android:color/black"
-            android:textSize="18sp" />
+            android:layout_weight="1"
+            android:backgroundTint="#3F51B5"
+            android:text="Default" />
 
-        <EditText
-            android:id="@+id/gx"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="4" />
-
-        <TextView
-            android:id="@+id/gy_text"
+        <Button
+            android:id="@+id/Security"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="2dp"
-            android:gravity="center"
-            android:text="gy : "
-            android:textColor="@android:color/black"
-            android:textSize="18sp" />
-
-        <EditText
-            android:id="@+id/gy"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="4" />
+            android:layout_weight="1"
+            android:backgroundTint="#3F51B5"
+            android:text="Security" />
 
         <Button
             android:id="@+id/SendBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
+            android:backgroundTint="#3F51B5"
             android:enabled="true"
-            android:text="SEND" />
+            android:shadowColor="#3F51B5"
+            android:text="RRT"
+            android:textColor="#040405"
+            android:textColorHint="#3F51B5"
+            android:textColorLink="#3F51B5" />
     </LinearLayout>
 
     <LinearLayout

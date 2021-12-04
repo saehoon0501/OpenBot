@@ -11,6 +11,8 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.hardware.Camera;
+import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -29,6 +31,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -147,6 +150,10 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
     TextView templ;
     TextView goal;
+    Button sendBtn;
+    Button securityBtn;
+    Button normalBtn;
+    Timer timer;
 
     // for radian -> dgree
     private double RAD2DGR = 180 / Math.PI;
@@ -163,7 +170,9 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.activity_play);
 
-        Button sendBtn = findViewById(R.id.SendBtn);
+         sendBtn = findViewById(R.id.SendBtn);
+         securityBtn = findViewById(R.id.Security);
+         normalBtn = findViewById(R.id.normal);
         templ=  findViewById(R.id.temploc);
         goal = findViewById(R.id.goalloc);
         goal.setText("RRT 대기 중");
@@ -176,7 +185,43 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
             }
         });
 
+        securityBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                security();
+            }
+        });
+
+        normalBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                normal();
+            }
+        });
+
         MainFragment.playActivity = this;
+    }
+
+    private void security(){
+        final Handler handler = new Handler();
+        timer = new Timer(false);
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        vehicle.sendControl(-130,0);
+                    }
+                });
+            }
+        };
+        timer.schedule(timerTask, 1000); // 1000 = 1 second.
+    }
+
+    private void normal(){
+        if (timer!=null)
+            timer.cancel();
     }
 
     @Override
@@ -184,22 +229,6 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
         super.onResume();
         Intent intent = getIntent();
         voiceMessage = intent.getIntExtra("start request", 0);
-        final Handler handler = new Handler();
-        Timer timer = new Timer(false);
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        request();
-                    }
-                });
-            }
-        };
-        if (rrt == null)
-            timer.schedule(timerTask, 10000); // 1000 = 1 second.
-
     }
 
     @Override
@@ -210,15 +239,15 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
     public void request() {
         goal.setText("RRT 작동 중");
-        EditText gx_num = findViewById(R.id.gx);
-        EditText gy_num = findViewById(R.id.gy);
 
         x_list.clear();
         y_list.clear();
+        Random rand= new Random();
 
+        int rand_x = rand.nextInt(49)+1;
+        int rand_y = rand.nextInt(49)+1;
 
-        String str = gx_num.getText().toString() + "/" + gy_num.getText().toString();
-        String url = "https://mysterious-sea-88696.herokuapp.com/20/20";
+        String url = "https://mysterious-sea-88696.herokuapp.com/"+Integer.toString(rand_x)+"/"+Integer.toString(rand_y);
 
         Handler handler = new Handler() {
             @Override
@@ -319,13 +348,15 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
             range = (Double.parseDouble(movingDegree.get(i).toString()));
 
             //아두이노에 회전 명령(왼쪽이면 양수, 오른쪽 회전이면 음수)
-            while (degree < range - 10 || degree > range + 10) {
+            while (degree > range - 10 && degree < range + 10) {
                 if (range > degree) {
                     vehicle.sendControl(-135, 0);
-                } else
-                    vehicle.sendControl(0, -105);
+                } else{
 
+                    vehicle.sendControl(0, -105);
+                }
                 try {
+                    processImage();
                     System.out.println("멈춤");
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -337,8 +368,8 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
             long t = System.currentTimeMillis();
             long end = t + (new Double(Double.parseDouble(movingLength.get(i).toString()) * 1000 * 0.4)).longValue();
             while (System.currentTimeMillis() < end) {
+                processImage();
                 vehicle.sendControl(160, 240);
-
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -475,6 +506,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
         }
     }
 
+
     @Override
     protected void processImage() {
         ++frameNum;
@@ -567,8 +599,8 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
                             for (final Detector.Recognition result : results) {
                                 final RectF location = result.getLocation();
                                 if (location != null && result.getConfidence() >= minimumConfidence) {
-//                                    if (t2.isAlive())
-//                                        t2.interrupt();
+                                    if (rrt!=null)
+                                        rrt.interrupt();
                                     canvas1.drawRect(location, paint);
                                     cropToFrameTransform.mapRect(location);
                                     result.setLocation(location);
