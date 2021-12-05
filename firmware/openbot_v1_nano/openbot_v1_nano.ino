@@ -107,8 +107,8 @@
 #define PIN_SPEED_L 2
 #define PIN_SPEED_R 3
 #define PIN_VIN A7
-#define PIN_TRIGGER 4
-#define PIN_ECHO 4
+#define PIN_TRIGGER 13
+#define PIN_ECHO 12
 #define PIN_LED_LB 7
 #define PIN_LED_RB 8
 #endif
