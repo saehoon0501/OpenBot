@@ -70,14 +70,14 @@ import timber.log.Timber;
 
 public class MainFragment extends Fragment implements OnItemClickListener<SubCategory>, RecognitionListener {
 
-  public static PlayActivity playActivity;
-
-  // voice recognizer listener
-  public interface VoiceListener {
-    void onReceivedEvent();
-  }
-
-  private VoiceListener voiceListener;
+//  public static PlayActivity playActivity;
+//
+//  // voice recognizer listener
+//  public interface VoiceListener {
+//    void onReceivedEvent();
+//  }
+//
+//  private VoiceListener voiceListener;
 
 //  public void setVoiceListener(VoiceListener listener) {
 //    voiceListener = listener;
@@ -176,7 +176,7 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
         ArrayList<Category> categories = FeatureList.getCategories();
         initPermission();
         if(!canVoiceRec) {
-          categories.get(0).getSubCategories().get(2).setBackgroundColor("#01DF3A");
+          categories.get(0).getSubCategories().get(1).setBackgroundColor("#01DF3A");
           adapter = new CategoryAdapter(categories, this);
           binding.list.setAdapter(adapter);
 //          Toast.makeText(getContext(), "활성화", Toast.LENGTH_SHORT).show();
@@ -305,6 +305,14 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
     } else {
       //Toast.makeText(getContext(), "success", Toast.LENGTH_SHORT).show();
 
+      //synchronized (this) {
+      textToSpeech.speak("네 말씀하세요", TextToSpeech.QUEUE_FLUSH, null);
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException ex) {
+        ex.printStackTrace();
+      }
+      //}
       Handler handler = new Handler();
       handler.postDelayed(new Runnable() {
         public void run() {
@@ -413,9 +421,14 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
       Log.i("voice", "start");
 //            ((TextView) findViewById(R.id.ListeningTextView)).setText("Listening...");
       Toast.makeText(getContext(), "음성인식을 시작합니다.", Toast.LENGTH_SHORT).show();
-      synchronized (this) {
-        textToSpeech.speak("네 말씀하세요", TextToSpeech.QUEUE_ADD, null);
-      }
+//      //synchronized (this) {
+//      textToSpeech.speak("네 말씀하세요", TextToSpeech.QUEUE_FLUSH, null);
+//      //}
+//      try {
+//        Thread.sleep(1500);
+//      } catch (InterruptedException ex) {
+//        ex.printStackTrace();
+//      }
     }
 
     @Override
@@ -443,7 +456,7 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
         public void run() {
           recognizer.startListening(FAIL);
         }
-      }, 1000);
+      }, 2000);
 
     }
 
@@ -596,21 +609,21 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
           ex.printStackTrace();
         }
 
-      } else if (str.contains("자율 주행") || str.contains("자율주행")) {
+      } else if (str.contains("자율 주행") || str.contains("자율주행") || str.contains("자유 주행")) {
 
 //        ActivityManager manager = (ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE);
 //        List<ActivityManager.RunningTaskInfo> info = manager.getRunningTasks(1);
 //        ComponentName componentName = info.get(0).topActivity;
 //        String topActivityName = componentName.getShortClassName().substring(1);
 
-        if(playActivity != null) {
-          voiceListener = (VoiceListener) playActivity;
-          voiceListener.onReceivedEvent();
-        } else {
+//        if(playActivity != null) {
+//          voiceListener = (VoiceListener) playActivity;
+//          voiceListener.onReceivedEvent();
+//        } else {
           Intent intent = new Intent(requireActivity(), PlayActivity.class);
           intent.putExtra("start request", 1000);
           startActivity(intent);
-        }
+       // }
 
 //        if(topActivityName.equals("original.PlayActivity")) {
 //          voiceListener = (VoiceListener) playActivity;
@@ -620,6 +633,10 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
 //          intent.putExtra("start request", 1000);
 //          startActivity(intent);
 //        }
+
+      } else if (str.contains("왼쪽")) {
+
+      } else if (str.contains("오른쪽")) {
 
       }
     }
