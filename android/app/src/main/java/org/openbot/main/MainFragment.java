@@ -70,18 +70,17 @@ import timber.log.Timber;
 
 public class MainFragment extends Fragment implements OnItemClickListener<SubCategory>, RecognitionListener {
 
-//  public static PlayActivity playActivity;
-//
-//  // voice recognizer listener
-//  public interface VoiceListener {
-//    void onReceivedEvent();
-//  }
-//
-//  private VoiceListener voiceListener;
+  public static PlayActivity playActivity;
 
-//  public void setVoiceListener(VoiceListener listener) {
-//    voiceListener = listener;
-//  }
+  // voice recognizer listener
+  public interface VoiceListener {
+    void onReceivedEvent();
+    void onRight();
+    void onLeft();
+  }
+
+  private VoiceListener voiceListener;
+
 
   private MainViewModel mViewModel;
   private FragmentMainBinding binding;
@@ -611,33 +610,34 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
 
       } else if (str.contains("자율 주행") || str.contains("자율주행") || str.contains("자유 주행")) {
 
-//        ActivityManager manager = (ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE);
-//        List<ActivityManager.RunningTaskInfo> info = manager.getRunningTasks(1);
-//        ComponentName componentName = info.get(0).topActivity;
-//        String topActivityName = componentName.getShortClassName().substring(1);
-
-//        if(playActivity != null) {
-//          voiceListener = (VoiceListener) playActivity;
-//          voiceListener.onReceivedEvent();
-//        } else {
+        if(playActivity != null) {
+          voiceListener = (VoiceListener) playActivity;
+          voiceListener.onReceivedEvent();
+        } else {
           Intent intent = new Intent(requireActivity(), PlayActivity.class);
           intent.putExtra("start request", 1000);
           startActivity(intent);
-       // }
-
-//        if(topActivityName.equals("original.PlayActivity")) {
-//          voiceListener = (VoiceListener) playActivity;
-//          voiceListener.onReceivedEvent();
-//        } else {
-//          Intent intent = new Intent(requireActivity(), PlayActivity.class);
-//          intent.putExtra("start request", 1000);
-//          startActivity(intent);
-//        }
+        }
 
       } else if (str.contains("왼쪽")) {
+        if(playActivity != null) {
+          voiceListener = (VoiceListener) playActivity;
+          voiceListener.onLeft();
+        } else {
+          Intent intent = new Intent(requireActivity(), PlayActivity.class);
+          intent.putExtra("start request", 2000);
+          startActivity(intent);
+        }
 
       } else if (str.contains("오른쪽")) {
-
+        if(playActivity != null) {
+          voiceListener = (VoiceListener) playActivity;
+          voiceListener.onRight();
+        } else {
+          Intent intent = new Intent(requireActivity(), PlayActivity.class);
+          intent.putExtra("start request", 3000);
+          startActivity(intent);
+        }
       }
     }
     else {

@@ -87,7 +87,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 
-public class PlayActivity extends CameraActivity2 implements OnImageAvailableListener {
+public class PlayActivity extends CameraActivity2 implements OnImageAvailableListener, MainFragment.VoiceListener {
     private static final Logger LOGGER = new Logger();
 
     // Minimum detection confidence to track a detection.
@@ -176,10 +176,10 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.activity_play);
 
-         sendBtn = findViewById(R.id.SendBtn);
-         securityBtn = findViewById(R.id.Security);
-         normalBtn = findViewById(R.id.normal);
-        templ=  findViewById(R.id.temploc);
+        sendBtn = findViewById(R.id.SendBtn);
+        securityBtn = findViewById(R.id.Security);
+        normalBtn = findViewById(R.id.normal);
+        templ = findViewById(R.id.temploc);
         goal = findViewById(R.id.goalloc);
         goal.setText("RRT 대기 중");
 
@@ -203,15 +203,15 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
             @Override
             public void onClick(View v) {
                 normal();
-                toggle =0;
+                toggle = 0;
             }
         });
 
-      //  MainFragment.playActivity = this;
+        MainFragment.playActivity = this;
     }
 
-    private void security(){
-        final Handler handler = new Handler(){
+    private void security() {
+        final Handler handler = new Handler() {
             @Override
             public void handleMessage(@NonNull Message msg) {
                 toggle = 1;
@@ -227,8 +227,8 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
                         int i = 0;
                         Message msg = handler.obtainMessage();
                         handler.sendMessage(msg);
-                        while(2 > i ){
-                            vehicle.sendControl(-130,0);
+                        while (2 > i) {
+                            vehicle.sendControl(-130, 0);
                             try {
                                 Thread.sleep(100);
                             } catch (InterruptedException e) {
@@ -243,8 +243,8 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
         timer.schedule(timerTask, 2000); // 1000 = 1 second.
     }
 
-    private void normal(){
-        if (timer!=null)
+    private void normal() {
+        if (timer != null)
             timer.cancel();
     }
 
@@ -253,12 +253,20 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
         super.onResume();
         Intent intent = getIntent();
         voiceMessage = intent.getIntExtra("start request", 0);
+
+        if (voiceMessage == 1000) {
+            request();
+        } else if (voiceMessage == 2000) {
+            onLeft();
+        } else if (voiceMessage == 3000) {
+            onRight();
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        //MainFragment.playActivity = null;
+        MainFragment.playActivity = null;
     }
 
     public void request() {
@@ -266,12 +274,12 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
         x_list.clear();
         y_list.clear();
-        Random rand= new Random();
+        Random rand = new Random();
 
-        int rand_x = rand.nextInt(49)+1;
-        int rand_y = rand.nextInt(49)+1;
+        int rand_x = rand.nextInt(49) + 1;
+        int rand_y = rand.nextInt(49) + 1;
 
-        String url = "https://mysterious-sea-88696.herokuapp.com/"+Integer.toString(rand_x)+"/"+Integer.toString(rand_y);
+        String url = "https://mysterious-sea-88696.herokuapp.com/" + Integer.toString(rand_x) + "/" + Integer.toString(rand_y);
 
         Handler handler = new Handler() {
             @Override
@@ -317,13 +325,13 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
                     Toast.makeText(getApplicationContext(), temp, Toast.LENGTH_SHORT).show();
 
-                }else{
+                } else {
                     goal.setText(bundle.getString("end"));
                 }
             }
         };
 
-         rrt = new Thread(){
+        rrt = new Thread() {
             @Override
             public void run() {
                 String title = "";
@@ -375,7 +383,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
             while (degree > range - 10 && degree < range + 10) {
                 if (range > degree) {
                     vehicle.sendControl(-135, 0);
-                } else{
+                } else {
 
                     vehicle.sendControl(0, -105);
                 }
@@ -400,7 +408,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
                     e.printStackTrace();
                 }
             }
-           // 거리 계산한것 만큼 아두이노로 start 신호 보냄.
+            // 거리 계산한것 만큼 아두이노로 start 신호 보냄.
         }
 
     }
@@ -471,10 +479,30 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
     }
 
     // 음성 인식 interface implements
-//    @Override
-//    public void onReceivedEvent() {
-//        request();
-//    }
+    @Override
+    public void onReceivedEvent() {
+        request();
+    }
+
+    @Override
+    public void onRight() {
+        vehicle.sendControl(180, 130);
+        long t = System.currentTimeMillis();
+        long end = t + 10000L;
+        while (System.currentTimeMillis() < end) {}
+        vehicle.sendControl(0, 0);
+        Toast.makeText(this, "right", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onLeft() {
+        vehicle.sendControl(130, 180);
+        long t = System.currentTimeMillis();
+        long end = t + 10000L;
+        while (System.currentTimeMillis() < end) {}
+        vehicle.sendControl(0, 0);
+        Toast.makeText(this, "left", Toast.LENGTH_SHORT).show();
+    }
 
 
     private class GyroscopeListener implements SensorEventListener {
@@ -619,7 +647,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
                             final List<Detector.Recognition> mappedRecognitions =
                                     new LinkedList<Detector.Recognition>();
-                            MediaPlayer mediaPlayer = MediaPlayer.create(getContext(),R.raw.alarm);
+                            MediaPlayer mediaPlayer = MediaPlayer.create(getContext(), R.raw.alarm);
 
                             for (final Detector.Recognition result : results) {
                                 final RectF location = result.getLocation();
@@ -627,7 +655,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
                                     if (toggle == 1) {
                                         mediaPlayer.start();
                                         toggle = 0;
-                                    }else {
+                                    } else {
                                         mediaPlayer.stop();
                                         canvas1.drawRect(location, paint);
                                         cropToFrameTransform.mapRect(location);
@@ -670,7 +698,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
     @Override
     public synchronized void onPause() {
-        if (rrt!=null){
+        if (rrt != null) {
             rrt.interrupt();
             Thread.currentThread().interrupt();
         }
@@ -683,9 +711,8 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
     }
 
 
-
     @Override
-    protected void onPreviewSizeChosen(final Size size,final int rotation) {
+    protected void onPreviewSizeChosen(final Size size, final int rotation) {
         final float textSizePx =
                 TypedValue.applyDimension(
                         TypedValue.COMPLEX_UNIT_DIP, TEXT_SIZE_DIP, getResources().getDisplayMetrics());
