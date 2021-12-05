@@ -176,7 +176,7 @@ const float VOLTAGE_DIVIDER_FACTOR = (20 + 10) / 10;
 //Vehicle Control
 int ctrl_left = 0;
 int ctrl_right = 0;
-int E_carSpeed = 140;
+int E_carSpeed = 120;
 
 //Voltage measurement
 const unsigned int VIN_ARR_SZ = 10;
@@ -350,7 +350,7 @@ void loop() {
     if (ctrl_left > 0) ctrl_left = 0;
     if (ctrl_right > 0) ctrl_right = 0;
     SmartCar_Back();
-    delay(3000);
+    delay(1000);
   }
 #endif
 
@@ -595,7 +595,7 @@ void SmartCar_Back() {       // 후진
   digitalWrite(PIN_PWM_L1, LOW);
   digitalWrite(PIN_PWM_L2, HIGH);
     analogWrite(RightMotor_E_pin, E_carSpeed); 
-    for(int i = E_carSpeed; i<145;i++){
+    for(int i = E_carSpeed; i<122;i++){
           analogWrite(LeftMotor_E_pin, i);
           analogWrite(RightMotor_E_pin,i);
           delay(30);
