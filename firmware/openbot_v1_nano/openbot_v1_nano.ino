@@ -176,6 +176,7 @@ const float VOLTAGE_DIVIDER_FACTOR = (20 + 10) / 10;
 //Vehicle Control
 int ctrl_left = 0;
 int ctrl_right = 0;
+int E_carSpeed = 140;
 
 //Voltage measurement
 const unsigned int VIN_ARR_SZ = 10;
@@ -348,6 +349,8 @@ void loop() {
   if (distance_estimate < STOP_THRESHOLD) {
     if (ctrl_left > 0) ctrl_left = 0;
     if (ctrl_right > 0) ctrl_right = 0;
+    SmartCar_Back();
+    delay(3000);
   }
 #endif
 
@@ -571,3 +574,31 @@ void stop_timer() {
   echo_time = micros() - start_time;
 }
 #endif
+
+void SmartCar_Go() {       // 전진
+  Serial.println("Forward");
+//  digitalWrite(PIN_PWM_R1, HIGH);
+//  digitalWrite(PIN_PWM_R2, LOW);
+  digitalWrite(PIN_PWM_L1, LOW);
+  digitalWrite(PIN_PWM_L2, HIGH);
+
+ 
+//    analogWrite(RightMotor_E_pin, i);     
+    analogWrite(LeftMotor_E_pin, E_carSpeed);
+    delay(20);
+}
+
+void SmartCar_Back() {       // 후진
+  Serial.println("Backward");
+  digitalWrite(PIN_PWM_R1, LOW);
+  digitalWrite(PIN_PWM_R2, HIGH);
+  digitalWrite(PIN_PWM_L1, LOW);
+  digitalWrite(PIN_PWM_L2, HIGH);
+    analogWrite(RightMotor_E_pin, E_carSpeed); 
+    for(int i = E_carSpeed; i<145;i++){
+          analogWrite(LeftMotor_E_pin, i);
+          analogWrite(RightMotor_E_pin,i);
+          delay(30);
+    }
+    
+  }
