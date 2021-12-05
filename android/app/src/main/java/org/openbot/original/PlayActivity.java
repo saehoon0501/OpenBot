@@ -87,7 +87,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 
-public class PlayActivity extends CameraActivity2 implements OnImageAvailableListener, MainFragment.VoiceListener {
+public class PlayActivity extends CameraActivity2 implements OnImageAvailableListener {
     private static final Logger LOGGER = new Logger();
 
     // Minimum detection confidence to track a detection.
@@ -207,7 +207,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
             }
         });
 
-        MainFragment.playActivity = this;
+      //  MainFragment.playActivity = this;
     }
 
     private void security(){
@@ -258,7 +258,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
     @Override
     public void onStop() {
         super.onStop();
-        MainFragment.playActivity = null;
+        //MainFragment.playActivity = null;
     }
 
     public void request() {
@@ -471,10 +471,10 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
     }
 
     // 음성 인식 interface implements
-    @Override
-    public void onReceivedEvent() {
-        request();
-    }
+//    @Override
+//    public void onReceivedEvent() {
+//        request();
+//    }
 
 
     private class GyroscopeListener implements SensorEventListener {
