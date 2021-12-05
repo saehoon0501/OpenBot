@@ -13,13 +13,13 @@ public class FeatureList {
   // Global
   public static final String ALL = "All";
   public static final String GENERAL = "General";
-  public static final String LEGACY = "Legacy";
+  public static final String LEGACY = "산협프2 - 620팀";
   public static final String DEFAULT = "Default";
   public static final String CONTROLLER = "Controller";
   public static final String CONTROLLER_MAPPING = "Controller Mapping";
-  public static final String PLAY = "PlayActivity";
+  public static final String PLAY = "자율주행";
 
-  public static final String VOICE = "Voice Recognition";
+  public static final String VOICE = "음성인식";
 
   // Game
   public static final String GAME = "Game";
@@ -73,22 +73,22 @@ public class FeatureList {
     ArrayList<SubCategory> subCategories;
 
     subCategories = new ArrayList<>();
-    subCategories.add(new SubCategory(DEFAULT, R.drawable.openbot_icon, "#4B7BFF"));
+   // subCategories.add(new SubCategory(DEFAULT, R.drawable.openbot_icon, "#4B7BFF"));
     subCategories.add(new SubCategory(PLAY, R.drawable.openbot_icon, "#4B7BFF"));
     subCategories.add(new SubCategory(VOICE, R.drawable.ic_voice_over, "#FF4000")); // green #01DF3A
     categories.add(new Category(LEGACY, subCategories));
 
-    subCategories = new ArrayList<>();
-    subCategories.add(new SubCategory(FREE_ROAM, R.drawable.ic_game, "#FFFF6D00"));
-    subCategories.add(new SubCategory(DATA_COLLECTION, R.drawable.ic_storage, "#93C47D"));
-    subCategories.add(new SubCategory(CONTROLLER_MAPPING, R.drawable.ic_joystick, "#7268A6"));
-    categories.add(new Category(GENERAL, subCategories));
-
-    subCategories = new ArrayList<>();
-    subCategories.add(new SubCategory(AUTOPILOT, R.drawable.ic_autopilot, "#4B7BFF"));
-    subCategories.add(new SubCategory(OBJECT_NAV, R.drawable.ic_person_search, "#FFD966"));
-    subCategories.add(new SubCategory(MODEL_MANAGEMENT, R.drawable.ic_edit_48, "#FFAC6C"));
-    categories.add(new Category(AI, subCategories));
+//    subCategories = new ArrayList<>();
+//    subCategories.add(new SubCategory(FREE_ROAM, R.drawable.ic_game, "#FFFF6D00"));
+//    subCategories.add(new SubCategory(DATA_COLLECTION, R.drawable.ic_storage, "#93C47D"));
+//    subCategories.add(new SubCategory(CONTROLLER_MAPPING, R.drawable.ic_joystick, "#7268A6"));
+//    categories.add(new Category(GENERAL, subCategories));
+//
+//    subCategories = new ArrayList<>();
+//    subCategories.add(new SubCategory(AUTOPILOT, R.drawable.ic_autopilot, "#4B7BFF"));
+//    subCategories.add(new SubCategory(OBJECT_NAV, R.drawable.ic_person_search, "#FFD966"));
+//    subCategories.add(new SubCategory(MODEL_MANAGEMENT, R.drawable.ic_edit_48, "#FFAC6C"));
+//    categories.add(new Category(AI, subCategories));
 
     //    subCategories = new ArrayList<>();
     //    subCategories.add(new SubCategory(CONTROLLER, R.drawable.ic_controller));
@@ -147,7 +147,7 @@ public class FeatureList {
     ArrayList<SubCategory> subCategories;
 
     subCategories = new ArrayList<>();
-    subCategories.add(new SubCategory(DEFAULT, R.drawable.openbot_icon, "#4B7BFF"));
+   // subCategories.add(new SubCategory(DEFAULT, R.drawable.openbot_icon, "#4B7BFF"));
     subCategories.add(new SubCategory(PLAY, R.drawable.openbot_icon, "#4B7BFF"));
 
     if (str == "smile")
@@ -157,17 +157,17 @@ public class FeatureList {
 
     categories.add(new Category(LEGACY, subCategories));
 
-    subCategories = new ArrayList<>();
-    subCategories.add(new SubCategory(FREE_ROAM, R.drawable.ic_game, "#FFFF6D00"));
-    subCategories.add(new SubCategory(DATA_COLLECTION, R.drawable.ic_storage, "#93C47D"));
-    subCategories.add(new SubCategory(CONTROLLER_MAPPING, R.drawable.ic_joystick, "#7268A6"));
-    categories.add(new Category(GENERAL, subCategories));
-
-    subCategories = new ArrayList<>();
-    subCategories.add(new SubCategory(AUTOPILOT, R.drawable.ic_autopilot, "#4B7BFF"));
-    subCategories.add(new SubCategory(OBJECT_NAV, R.drawable.ic_person_search, "#FFD966"));
-    subCategories.add(new SubCategory(MODEL_MANAGEMENT, R.drawable.ic_edit_48, "#FFAC6C"));
-    categories.add(new Category(AI, subCategories));
+//    subCategories = new ArrayList<>();
+//    subCategories.add(new SubCategory(FREE_ROAM, R.drawable.ic_game, "#FFFF6D00"));
+//    subCategories.add(new SubCategory(DATA_COLLECTION, R.drawable.ic_storage, "#93C47D"));
+//    subCategories.add(new SubCategory(CONTROLLER_MAPPING, R.drawable.ic_joystick, "#7268A6"));
+//    categories.add(new Category(GENERAL, subCategories));
+//
+//    subCategories = new ArrayList<>();
+//    subCategories.add(new SubCategory(AUTOPILOT, R.drawable.ic_autopilot, "#4B7BFF"));
+//    subCategories.add(new SubCategory(OBJECT_NAV, R.drawable.ic_person_search, "#FFD966"));
+//    subCategories.add(new SubCategory(MODEL_MANAGEMENT, R.drawable.ic_edit_48, "#FFAC6C"));
+//    categories.add(new Category(AI, subCategories));
 
     return categories;
   }
@@ -184,17 +184,17 @@ public class FeatureList {
     subCategories.add(new SubCategory(VOICE, R.drawable.ic_baseline_sentiment_very_dissatisfied_24, "#FF4000")); // green #01DF3A
     categories.add(new Category(LEGACY, subCategories));
 
-    subCategories = new ArrayList<>();
-    subCategories.add(new SubCategory(FREE_ROAM, R.drawable.ic_game, "#FFFF6D00"));
-    subCategories.add(new SubCategory(DATA_COLLECTION, R.drawable.ic_storage, "#93C47D"));
-    subCategories.add(new SubCategory(CONTROLLER_MAPPING, R.drawable.ic_joystick, "#7268A6"));
-    categories.add(new Category(GENERAL, subCategories));
-
-    subCategories = new ArrayList<>();
-    subCategories.add(new SubCategory(AUTOPILOT, R.drawable.ic_autopilot, "#4B7BFF"));
-    subCategories.add(new SubCategory(OBJECT_NAV, R.drawable.ic_person_search, "#FFD966"));
-    subCategories.add(new SubCategory(MODEL_MANAGEMENT, R.drawable.ic_edit_48, "#FFAC6C"));
-    categories.add(new Category(AI, subCategories));
+//    subCategories = new ArrayList<>();
+//    subCategories.add(new SubCategory(FREE_ROAM, R.drawable.ic_game, "#FFFF6D00"));
+//    subCategories.add(new SubCategory(DATA_COLLECTION, R.drawable.ic_storage, "#93C47D"));
+//    subCategories.add(new SubCategory(CONTROLLER_MAPPING, R.drawable.ic_joystick, "#7268A6"));
+//    categories.add(new Category(GENERAL, subCategories));
+//
+//    subCategories = new ArrayList<>();
+//    subCategories.add(new SubCategory(AUTOPILOT, R.drawable.ic_autopilot, "#4B7BFF"));
+//    subCategories.add(new SubCategory(OBJECT_NAV, R.drawable.ic_person_search, "#FFD966"));
+//    subCategories.add(new SubCategory(MODEL_MANAGEMENT, R.drawable.ic_edit_48, "#FFAC6C"));
+//    categories.add(new Category(AI, subCategories));
 
     return categories;
   }
