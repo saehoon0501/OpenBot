@@ -260,6 +260,8 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
             onLeft();
         } else if (voiceMessage == 3000) {
             onRight();
+        } else if (voiceMessage == 4000) {
+            onStraight();
         }
     }
 
@@ -486,9 +488,9 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
     @Override
     public void onRight() {
-        vehicle.sendControl(180, 130);
+        vehicle.sendControl(255, 0);
         long t = System.currentTimeMillis();
-        long end = t + 10000L;
+        long end = t + 1000L;
         while (System.currentTimeMillis() < end) {}
         vehicle.sendControl(0, 0);
         Toast.makeText(this, "right", Toast.LENGTH_SHORT).show();
@@ -496,9 +498,19 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
     @Override
     public void onLeft() {
-        vehicle.sendControl(130, 180);
+        vehicle.sendControl(0, 255);
         long t = System.currentTimeMillis();
-        long end = t + 10000L;
+        long end = t + 1000L;
+        while (System.currentTimeMillis() < end) {}
+        vehicle.sendControl(0, 0);
+        Toast.makeText(this, "left", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onStraight() {
+        vehicle.sendControl(200, 200);
+        long t = System.currentTimeMillis();
+        long end = t + 4000L;
         while (System.currentTimeMillis() < end) {}
         vehicle.sendControl(0, 0);
         Toast.makeText(this, "left", Toast.LENGTH_SHORT).show();

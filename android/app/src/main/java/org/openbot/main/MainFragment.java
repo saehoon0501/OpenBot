@@ -77,6 +77,7 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
     void onReceivedEvent();
     void onRight();
     void onLeft();
+    void onStraight();
   }
 
   private VoiceListener voiceListener;
@@ -522,7 +523,7 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
   };
 
   private void doCommand(String command) {
-    if(command != null) {
+    if (command != null) {
       String str = command;
 
       Toast.makeText(getContext(), str, Toast.LENGTH_SHORT).show();
@@ -546,15 +547,14 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일 HH시 mm분");
         simpleDateFormat.format(calendar.getTime());
-        textToSpeech.speak(simpleDateFormat.format(calendar.getTime()) + "에 알림 예약되었습니다." , TextToSpeech.QUEUE_FLUSH, null);
+        textToSpeech.speak(simpleDateFormat.format(calendar.getTime()) + "에 알림 예약되었습니다.", TextToSpeech.QUEUE_FLUSH, null);
         try {
           timeAlarmManager.reservationTimeByHour(calendar.getTime(), getContext());
         } catch (NullPointerException ex) {
           Toast.makeText(getContext(), "몇 시간 후인지 정확히 인식되지 않았습니다.", Toast.LENGTH_SHORT).show();
         }
 
-      }
-      else if (str.contains("분 뒤 알림") || str.contains("분 뒤에 알림")) { // 분 알림
+      } else if (str.contains("분 뒤 알림") || str.contains("분 뒤에 알림")) { // 분 알림
         alarmByMin = str.charAt(0) - '0';
 
         calendar.add(Calendar.MINUTE, alarmByMin);
@@ -566,7 +566,7 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일 HH시 mm분");
 
-        textToSpeech.speak(simpleDateFormat.format(calendar.getTime()) + "에 알림 예약되었습니다." , TextToSpeech.QUEUE_FLUSH, null);
+        textToSpeech.speak(simpleDateFormat.format(calendar.getTime()) + "에 알림 예약되었습니다.", TextToSpeech.QUEUE_FLUSH, null);
         try {
           timeAlarmManager.reservationTimeByMin(calendar.getTime(), getContext());
           System.out.println(reservationTime + "에 알림 설정되었다");
@@ -578,23 +578,20 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
             //     textToSpeech.speak("몇 분 후인지 정확히 인식되지 않았습니다.", TextToSpeech.QUEUE_FLUSH, null);
           }
         }
-      }
-      else if (str.contains("기분 좋아") || str.contains("행복")) {         //사용자의 기분에 맞춰서 voice 이미지 변경
+      } else if (str.contains("기분 좋아") || str.contains("행복")) {         //사용자의 기분에 맞춰서 voice 이미지 변경
 
         binding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new CategoryAdapter(FeatureList.changeVoiceCategoryImage("smile"), this);
         binding.list.setAdapter(adapter);
         textToSpeech.speak("저도 행복해요", TextToSpeech.QUEUE_FLUSH, null);
 
-      }
-      else if (str.contains("피곤") || str.contains("슬퍼")) {
+      } else if (str.contains("피곤") || str.contains("슬퍼")) {
 
         binding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new CategoryAdapter(FeatureList.changeVoiceCategoryImage("sad"), this);
         binding.list.setAdapter(adapter);
         textToSpeech.speak("저도 우울해지네요", TextToSpeech.QUEUE_FLUSH, null);
-      }
-      else if (str.contains("날씨") || str.contains("날씨 어때") || str.contains("날 씨")) {
+      } else if (str.contains("날씨") || str.contains("날씨 어때") || str.contains("날 씨")) {
 
         try {
           Thread weatherGetting = new WeatherGetter();
@@ -603,14 +600,14 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
 
           String weatherInfo = WeatherGetter.getWeatherInfo();
           Toast.makeText(getContext(), weatherInfo, Toast.LENGTH_SHORT).show();
-          textToSpeech.speak(weatherInfo , TextToSpeech.QUEUE_FLUSH, null);
+          textToSpeech.speak(weatherInfo, TextToSpeech.QUEUE_FLUSH, null);
         } catch (InterruptedException ex) {
           ex.printStackTrace();
         }
 
       } else if (str.contains("자율 주행") || str.contains("자율주행") || str.contains("자유 주행")) {
 
-        if(playActivity != null) {
+        if (playActivity != null) {
           voiceListener = (VoiceListener) playActivity;
           voiceListener.onReceivedEvent();
         } else {
@@ -620,7 +617,7 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
         }
 
       } else if (str.contains("왼쪽")) {
-        if(playActivity != null) {
+        if (playActivity != null) {
           voiceListener = (VoiceListener) playActivity;
           voiceListener.onLeft();
         } else {
@@ -630,7 +627,7 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
         }
 
       } else if (str.contains("오른쪽")) {
-        if(playActivity != null) {
+        if (playActivity != null) {
           voiceListener = (VoiceListener) playActivity;
           voiceListener.onRight();
         } else {
@@ -638,12 +635,19 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
           intent.putExtra("start request", 3000);
           startActivity(intent);
         }
+      } else if (str.contains("직진")) {
+        if (playActivity != null) {
+          voiceListener = (VoiceListener) playActivity;
+          voiceListener.onStraight();
+        } else {
+          Intent intent = new Intent(requireActivity(), PlayActivity.class);
+          intent.putExtra("start request", 4000);
+          startActivity(intent);
+        }
+      } else {
+        Toast.makeText(getContext(), "null", Toast.LENGTH_SHORT).show();
       }
     }
-    else {
-      Toast.makeText(getContext(), "null", Toast.LENGTH_SHORT).show();
-    }
+
   }
-
-
 }
