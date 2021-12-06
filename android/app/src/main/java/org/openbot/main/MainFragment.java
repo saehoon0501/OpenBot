@@ -585,12 +585,12 @@ public class MainFragment extends Fragment implements OnItemClickListener<SubCat
         binding.list.setAdapter(adapter);
         textToSpeech.speak("저도 행복해요", TextToSpeech.QUEUE_FLUSH, null);
 
-      } else if (str.contains("피곤") || str.contains("슬퍼")) {
+      } else if (str.contains("피곤") || str.contains("슬퍼") || str.contains("우울")) {
 
         binding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new CategoryAdapter(FeatureList.changeVoiceCategoryImage("sad"), this);
         binding.list.setAdapter(adapter);
-        textToSpeech.speak("저도 우울해지네요", TextToSpeech.QUEUE_FLUSH, null);
+        textToSpeech.speak("힘내세요", TextToSpeech.QUEUE_FLUSH, null);
       } else if (str.contains("날씨") || str.contains("날씨 어때") || str.contains("날 씨")) {
 
         try {
