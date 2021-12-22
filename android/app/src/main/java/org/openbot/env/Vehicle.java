@@ -11,7 +11,7 @@ public class Vehicle {
   private final Noise noise = new Noise(1000, 2000, 5000);
   private boolean noiseEnabled = false;
   private int indicator = 0;
-  private int speedMultiplier = 128; // 128,192,255
+  private int speedMultiplier = 192; // 128,192,255
   private Control control = new Control(0, 0);
 
   private final SensorReading batteryVoltage = new SensorReading();

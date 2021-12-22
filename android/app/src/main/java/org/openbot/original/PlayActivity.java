@@ -118,8 +118,6 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
     final Bundle bundle = new Bundle();
     ArrayList x_list = new ArrayList();
     ArrayList y_list = new ArrayList();
-    ArrayList angle = new ArrayList();
-    ArrayList distance = new ArrayList();
     private Vehicle vehicle = OpenBotApplication.vehicle;
 
 
@@ -128,7 +126,6 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
 
     double degree;
-    double gyro;
 
     //센서 받아오는 변수들
 
@@ -141,7 +138,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
     private Sensor mGgyroSensor = null;
 
 
-    private double range;
+    private double angle;
 
     //Roll and Pitch
     private double pitch;
@@ -160,6 +157,7 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
     Timer timer;
     ImageReader reader;
     int toggle;
+    MediaPlayer mediaPlayer;
 
     // for radian -> dgree
     private double RAD2DGR = 180 / Math.PI;
@@ -176,10 +174,11 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.activity_play);
 
-        sendBtn = findViewById(R.id.SendBtn);
-        securityBtn = findViewById(R.id.Security);
-        normalBtn = findViewById(R.id.normal);
-        templ = findViewById(R.id.temploc);
+        mediaPlayer = MediaPlayer.create(getContext(),R.raw.alarm);
+         sendBtn = findViewById(R.id.SendBtn);
+         securityBtn = findViewById(R.id.Security);
+         normalBtn = findViewById(R.id.normal);
+        templ=  findViewById(R.id.temploc);
         goal = findViewById(R.id.goalloc);
         goal.setText("RRT 대기 중");
 
@@ -194,8 +193,8 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
         securityBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                security();
                 toggle = 1;
+                security();
             }
         });
 
@@ -206,41 +205,29 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
                 toggle = 0;
             }
         });
-
         MainFragment.playActivity = this;
     }
 
-    private void security() {
-        final Handler handler = new Handler() {
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-                toggle = 1;
-            }
-        };
+
+    private void security(){
         timer = new Timer(false);
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        int i = 0;
-                        Message msg = handler.obtainMessage();
-                        handler.sendMessage(msg);
-                        while (2 > i) {
-                            vehicle.sendControl(-130, 0);
-                            try {
-                                Thread.sleep(100);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            i++;
-                        }
-                    }
-                });
+                int i =0;
+                while(1000>i){
+                    vehicle.sendControl(-255, 0);
+                    i++;
+                }
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-        };
-        timer.schedule(timerTask, 2000); // 1000 = 1 second.
+            };
+            timer.schedule(timerTask, 3000,3000); // 1000 = 1 second.
     }
 
     private void normal() {
@@ -281,7 +268,8 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
         int rand_x = rand.nextInt(49) + 1;
         int rand_y = rand.nextInt(49) + 1;
 
-        String url = "https://mysterious-sea-88696.herokuapp.com/" + Integer.toString(rand_x) + "/" + Integer.toString(rand_y);
+
+        String url = "https://mysterious-sea-88696.herokuapp.com/45/5";
 
         Handler handler = new Handler() {
             @Override
@@ -376,34 +364,31 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
         angle();
         distance();
 
-
         for (int i = 0; i < movingDegree.size(); i++) {
 
-            range = (Double.parseDouble(movingDegree.get(i).toString()));
-
+            angle = (Double.parseDouble(movingDegree.get(i).toString()));
+            roll = 0;
+            dt = 0;
             //아두이노에 회전 명령(왼쪽이면 양수, 오른쪽 회전이면 음수)
-            while (degree > range - 10 && degree < range + 10) {
-                if (range > degree) {
-                    vehicle.sendControl(-135, 0);
-                } else {
 
-                    vehicle.sendControl(0, -105);
+            while (10*Math.abs(degree) <= 10*Math.abs(angle)+60) {
+                if (angle > 0) {
+                        vehicle.sendControl(210, 0);
+                    }
+                 else{
+                        vehicle.sendControl(0, 210);
                 }
                 try {
-                    processImage();
-                    System.out.println("멈춤");
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-
             //직진 명령
             long t = System.currentTimeMillis();
-            long end = t + (new Double(Double.parseDouble(movingLength.get(i).toString()) * 1000 * 0.4)).longValue();
+            long end = t + (new Double(Double.parseDouble(movingLength.get(i).toString()) * 1000 * 0.8)).longValue();
             while (System.currentTimeMillis() < end) {
-                processImage();
-                vehicle.sendControl(160, 240);
+                vehicle.sendControl(230, 230);
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -543,11 +528,13 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
                 roll = roll + gyroX * dt;
                 yaw = yaw + gyroZ * dt;
 
-                if (roll < -360 || roll > 360) {
-                    roll = 0;
-                }
+
 
                 degree = roll * RAD2DGR;
+                if (degree < -360 || degree > 360) {
+                    roll=0;
+                    dt=0;
+                }
 
 
                 String dtos = String.valueOf(degree);
@@ -659,27 +646,28 @@ public class PlayActivity extends CameraActivity2 implements OnImageAvailableLis
 
                             final List<Detector.Recognition> mappedRecognitions =
                                     new LinkedList<Detector.Recognition>();
-                            MediaPlayer mediaPlayer = MediaPlayer.create(getContext(), R.raw.alarm);
 
                             for (final Detector.Recognition result : results) {
                                 final RectF location = result.getLocation();
                                 if (location != null && result.getConfidence() >= minimumConfidence) {
                                     if (toggle == 1) {
-                                        mediaPlayer.start();
-                                        toggle = 0;
-                                    } else {
-                                        mediaPlayer.stop();
+                                        if(!mediaPlayer.isPlaying())
+                                            mediaPlayer.start();
+                                        timer.cancel();
+                                    }
                                         canvas1.drawRect(location, paint);
                                         cropToFrameTransform.mapRect(location);
                                         result.setLocation(location);
                                         mappedRecognitions.add(result);
-                                    }
                                 }
                             }
-
+                            if (toggle != 1){
                             tracker.trackResults(mappedRecognitions, currFrameNum);
                             controllerHandler.handleDriveCommand(tracker.updateTarget());
                             trackingOverlay.postInvalidate();
+                            }else{
+                                vehicle.sendControl(0,0);
+                            }
                         } else if (autopilot != null) {
                             LOGGER.i("Running autopilot on image " + currFrameNum);
                             final long startTime = SystemClock.elapsedRealtime();
