@@ -25,7 +25,7 @@ OpenBot leverages smartphones as brains for low-cost robots. We have designed a 
 ## Video
 
 <a href="https://youtu.be/uOuia5dhNUM" >
-  <img align="center" width="500" alt="youtube video" src="docs/images/youtube.jpg" />
+  <img align="center" width="500" alt="youtube video" src="docs/images/스크린샷 2023-05-21 오후 11.31.59.png" />
 </a>
 
 ## Get started with OpenBot
